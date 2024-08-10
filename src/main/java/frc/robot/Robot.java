@@ -167,8 +167,7 @@ public class Robot extends TimedRobot
     m_robotContainer.setDriveMode();
     m_robotContainer.setMotorBrake(true);
     aprilTagAlliance();
-    //LEDsSubSystem.fireEffect();
-    LEDsSubSystem.setSolidLED(15, 10);
+    LEDsSubSystem.setSolidLED(45, 10);
     System.out.println("Speaker; " + AprilTagConstants.speakerID);
 
     //LEDsSubSystem.setSolidLED(30, 64); //Sets the color to 30 orange, and the brightness to 25%
@@ -239,7 +238,7 @@ public class Robot extends TimedRobot
     AprilTagConstants.stageIDA  = DriverStation.getAlliance().get() == Alliance.Blue ? 14 : 13;
     AprilTagConstants.stageIDB  = DriverStation.getAlliance().get() == Alliance.Blue ? 15 : 12;
     AprilTagConstants.stageIDC  = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 11;
-    System.out.println("Alliance: " + DriverStation.getAlliance().get() + " ampID: " + AprilTagConstants.ampID + " speakerID: " + AprilTagConstants.speakerID + " stageIDA: " + AprilTagConstants.stageIDA + " stageIDB: " + AprilTagConstants.stageIDB + " stageIDC: " + AprilTagConstants.stageIDC);
+    //System.out.println("Alliance: " + DriverStation.getAlliance().get() + " ampID: " + AprilTagConstants.ampID + " speakerID: " + AprilTagConstants.speakerID + " stageIDA: " + AprilTagConstants.stageIDA + " stageIDB: " + AprilTagConstants.stageIDB + " stageIDC: " + AprilTagConstants.stageIDC);
   }
   
 

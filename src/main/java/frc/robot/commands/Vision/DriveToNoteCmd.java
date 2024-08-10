@@ -7,7 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import frc.robot.commands.swervedrive.drivebase.DriveDistancePPID;
+//import frc.robot.commands.swervedrive.drivebase.DriveDistancePPID;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class DriveToNoteCmd extends Command
@@ -34,12 +34,12 @@ public class DriveToNoteCmd extends Command
   public void initialize()
   {
     droveToNote = false;
-    xController = new PIDController(0.166, 0.00, 0.0);
+    xController = new PIDController(0.125, 0.00, 0.0);
     //yController = new PIDController(0.0625, 0.00375, 0.0001);
     zController = new PIDController(0.09,0.0, 0.000);
-    xController.setTolerance(5);
+    xController.setTolerance(1);
     //yController.setTolerance(3);
-    zController.setTolerance(5);
+    zController.setTolerance(1);
   }
 
     /**
@@ -68,7 +68,7 @@ public class DriveToNoteCmd extends Command
         if (xController.atSetpoint() != true) { // If the swerve subsystem has not reached the x-axis setpoint
             swerveSubsystem.drive(new Translation2d(translationValx, 0.0), translationValz, false); // Drive the swerve subsystem based on the calculated translation values
           } else { // If the swerve subsystem has reached the x-axis setpoint
-            new DriveDistancePPID(0.25, 0.0, 0.0, .1, swerveSubsystem); // Initiate a drive distance command to approach the note
+            //new DriveDistancePPID(.5, 0.0, 0.0, .1, swerveSubsystem); // Initiate a drive distance command to approach the note
             droveToNote = true; // Set droveToNote to true
           }
       }
@@ -106,6 +106,6 @@ public class DriveToNoteCmd extends Command
   public void end(boolean interrupted)
   {
     //swerveSubsystem.lock();
-    Robot.LEDsSubSystem.fireEffect(); // Fire the LEDs effect
+    //Robot.LEDsSubSystem.fireEffect(); // Fire the LEDs effect
   }
 }

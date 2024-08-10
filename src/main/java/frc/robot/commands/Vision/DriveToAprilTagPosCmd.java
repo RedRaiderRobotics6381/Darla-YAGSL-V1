@@ -85,7 +85,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
     xController.reset(robotPose.getX());
     yController.reset(robotPose.getY());
     //int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    System.out.println(" April Tag: " + aprilTag + " April Tag Number: " + aprilTagNum + " X Offset: " + xOffset + " Y Offset: " + yOffset + " XY Tolerance: " + xyTol);
+    //System.out.println(" April Tag: " + aprilTag + " April Tag Number: " + aprilTagNum + " X Offset: " + xOffset + " Y Offset: " + yOffset + " XY Tolerance: " + xyTol);
   
   }
 

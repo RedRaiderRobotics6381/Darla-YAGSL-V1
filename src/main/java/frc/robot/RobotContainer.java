@@ -156,10 +156,10 @@ public class RobotContainer
     //driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
     //driverXbox.b().whileTrue(new DriveDistance(.25, 0, 6, drivebase));
     //new JoystickButton(driverXbox, 4).whileTrue(new DriveDistance(drivebase));
-    driverXbox.povUp().onTrue(new DriveDistancePPID(2, 0, 0, .1, drivebase));
-    driverXbox.povDown().onTrue(new DriveDistancePPID(-2, 0, 0, .1, drivebase));
-    driverXbox.povRight().onTrue(new DriveDistancePPID(0, 2, 0, .1, drivebase));
-    driverXbox.povLeft().onTrue(new DriveDistancePPID(0, -2, 0, .1, drivebase));
+    driverXbox.povUp().onTrue(new DriveDistancePPID(1, 0, 0, .1, drivebase));
+    driverXbox.povDown().onTrue(new DriveDistancePPID(-1, 0, 0, .1, drivebase));
+    driverXbox.povRight().onTrue(new DriveDistancePPID(0, -1, 0, .1, drivebase));
+    driverXbox.povLeft().onTrue(new DriveDistancePPID(0, 1, 0, .1, drivebase));
 
     //driverXbox.a().onTrue((Commands.run(drivebase::sysIdDriveMotorCommand)));
     //driverXbox.b().onTrue((Commands.run(drivebase::sysIdAngleMotorCommand)));
@@ -171,7 +171,7 @@ public class RobotContainer
                                                        0.1,
                                                        drivebase)); 
 
-    driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase));
+    driverXbox.b().onTrue(new DriveToNoteCmd(drivebase).andThen(new DriveDistancePPID(-.5, 0, 0, .1, drivebase)) );
 
     driverXbox.y().whileTrue(
       Commands.deferredProxy(() -> drivebase.driveToPose(
@@ -237,7 +237,7 @@ public class RobotContainer
     PIDController zController = null;
     int fiducialId = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4; //speakerID
     try {
-      zController = new PIDController(.025, 0.05, 0.0);//0.07,0.0, 0.000;
+      zController = new PIDController(.05, 0.0, 0.0);//0.07,0.0, 0.000;
       zController.setTolerance(.5);
 
       if (driverXbox.getHID().getRightStickButton() == false){  
