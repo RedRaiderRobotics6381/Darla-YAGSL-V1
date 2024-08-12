@@ -6,9 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -171,12 +168,12 @@ public class RobotContainer
                                                        0.1,
                                                        drivebase)); 
 
-    driverXbox.b().onTrue(new DriveToNoteCmd(drivebase).andThen(new DriveDistancePPID(-.5, 0, 0, .1, drivebase)) );
+    driverXbox.b().onTrue(new DriveToNoteCmd(drivebase).andThen
+                         (new DriveDistancePPID(-.5, 0, 0, .1, drivebase)));
 
-    driverXbox.y().whileTrue(
-      Commands.deferredProxy(() -> drivebase.driveToPose(
-                     new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-                  ));
+    // driverXbox.y().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
+    //               new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));
+
     //driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
   }

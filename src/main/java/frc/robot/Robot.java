@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-//import edu.wpi.first.wpilibj.DriverStation.Alliance;
-//import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -15,15 +13,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.AprilTagConstants;
-//import frc.robot.Constants.AprilTagConstants;
 import frc.robot.subsystems.LEDsSubSystem;
-
 import java.io.File;
 import java.io.IOException;
-//import java.util.Optional;
-
 import org.photonvision.PhotonCamera;
-
 import swervelib.parser.SwerveParser;
 
 /**
@@ -33,7 +26,6 @@ import swervelib.parser.SwerveParser;
  */
 public class Robot extends TimedRobot
 {
-
   private static Robot   instance;
   private Command m_autonomousCommand;
 
@@ -65,8 +57,6 @@ public class Robot extends TimedRobot
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-
-    
     camObj.setDriverMode(false); // Set the camera to driver mode
     camAprTgLow.setDriverMode(false); // Set the camera to driver mode
     
@@ -167,8 +157,9 @@ public class Robot extends TimedRobot
     m_robotContainer.setDriveMode();
     m_robotContainer.setMotorBrake(true);
     aprilTagAlliance();
-    LEDsSubSystem.setSolidLED(45, 10);
-    System.out.println("Speaker; " + AprilTagConstants.speakerID);
+    // LEDsSubSystem.setSolidLED(45, 10);
+    // LEDsSubSystem.fireEffect();
+    // System.out.println("Speaker; " + AprilTagConstants.speakerID);
 
     //LEDsSubSystem.setSolidLED(30, 64); //Sets the color to 30 orange, and the brightness to 25%
     //LEDsSubSystem.setSolidLED(45, 128); //Sets the color to 45 yellow, and the brightness to 50%
@@ -182,8 +173,7 @@ public class Robot extends TimedRobot
   public void teleopPeriodic()
   {
     m_robotContainer.spencerButtons();
-    watchForNote();
-    
+    watchForNote(); 
   }
 
   @Override
@@ -257,8 +247,8 @@ public class Robot extends TimedRobot
         //LEDsSubSystem.fireEffect();
       } else {
         //System.out.println("No Note Found");
-        //LEDsSubSystem.fireEffect();
-        LEDsSubSystem.setSolidLED(15, 10);
+        LEDsSubSystem.fireEffect();
+        //LEDsSubSystem.setSolidLED(15, 10);
       }
     return hasTargets;
   }

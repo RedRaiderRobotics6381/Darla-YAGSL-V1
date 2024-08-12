@@ -44,11 +44,11 @@ public class LEDsSubSystem extends SubsystemBase {
    * @return the command to set the LEDs to a solid color
    */
   public Command setSolidLED(int hue, int value) {
-      for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
-        m_ledBuffer.setHSV(i, hue, 255, value); // Set the HSV value of the pixel
-      }
-      return null;
+    for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
+      m_ledBuffer.setHSV(i, hue, 255, value); // Set the HSV value of the pixel
     }
+    return null;
+  }
   
   /**
    * Executes the fire effect on the LEDs.
@@ -59,17 +59,15 @@ public class LEDsSubSystem extends SubsystemBase {
    * @return null
    */
   public Command fireEffect() {
-      // For every pixel
-      for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
-        // Calculate the hue - hue is easier for rainbows because the color
-        // shape is a circle so only one value needs to precess
-        final var hue = (m_fireFirstPixelHue + (i * 60 / m_ledBuffer.getLength())) % 60;
-        m_ledBuffer.setHSV(i, hue, 255, 64); // Set the HSV value of the pixel
-      }
-      m_fireFirstPixelHue += 3; // Increase the hue by 3 to make the rainbow "move"
-      m_fireFirstPixelHue %= 60; // Keep the hue within the range of 0-60
-      m_led.setData(m_ledBuffer); // Set the data of the LED buffer
-      return null;
+    // For every pixel
+    for (var i = 0; i < m_ledBuffer.getLength(); i++) {
+      final var hue = (m_fireFirstPixelHue + (i * 60 / m_ledBuffer.getLength())) % 60;
+      m_ledBuffer.setHSV(i, hue, 255, 64); // Set the HSV value of the pixel
+    }
+    m_fireFirstPixelHue += 3; // Increase the hue by 3 to make the rainbow "move"
+    m_fireFirstPixelHue %= 60; // Keep the hue within the range of 0-60
+    m_led.setData(m_ledBuffer); // Set the data of the LED buffer
+    return null;
   }
 
   /**
@@ -79,19 +77,27 @@ public class LEDsSubSystem extends SubsystemBase {
    * @return The Command object representing the fire effect N.
    */
   public Command rainbow() {
-      // For every pixel
-      for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
-        // Calculate the hue - hue is easier for rainbows because the color
-        // shape is a circle so only one value needs to precess
-        final var hue = (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
-        m_ledBuffer.setHSV(i, hue, 255, 64); // Set the HSV value of the pixel
-      }
-      m_rainbowFirstPixelHue += 3; // Increase the hue by 3 to make the rainbow "move"
-      m_rainbowFirstPixelHue %= 180; // Keep the hue within the range of 0-180
-      m_led.setData(m_ledBuffer); // Set the data of the LED buffer
-      return null;
+    // For every pixel
+    for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
+      // Calculate the hue - hue is easier for rainbows because the color
+      // shape is a circle so only one value needs to precess
+      final var hue = (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
+      m_ledBuffer.setHSV(i, hue, 255, 64); // Set the HSV value of the pixel
+    }
+    m_rainbowFirstPixelHue += 3; // Increase the hue by 3 to make the rainbow "move"
+    m_rainbowFirstPixelHue %= 180; // Keep the hue within the range of 0-180
+    m_led.setData(m_ledBuffer); // Set the data of the LED buffer
+    return null;
   }
-
+  
+  /**
+   * Default command that runs the fire effect.
+   * 
+   * @return The Command object representing the default command.
+   */
+  public Command getDefaultCommand() {
+    return fireEffect();
+  }
 }
  //Hue: 0-180, Saturation: 0-255, Value: 0-255
  //Hue of 180 = Red, 120 = Green, 60 = Blue, 0 = Red
