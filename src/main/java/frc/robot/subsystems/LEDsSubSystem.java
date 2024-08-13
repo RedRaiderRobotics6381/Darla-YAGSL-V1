@@ -43,9 +43,9 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param value  the value/brightness of the color (0-255)
    * @return       the command object
    */
-  public Command setSolidLED(int hue, int value) {
+  public Command setSolidLED(int hue, int sat, int value) {
     for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
-      m_ledBuffer.setHSV(i, hue, 255, value); // Set the HSV value of the pixel
+      m_ledBuffer.setHSV(i, hue, sat, value); // Set the HSV value of the pixel
     }
     return null;
   }
@@ -57,11 +57,11 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param delay the delay in milliseconds between each step of the fade effect
    * @return the Command object representing the fade effect
    */
-  public Command fadeEffect(int hue, long delay) {
+  public Command fadeEffect(int hue, int sat, long delay) {
     // For every pixel
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
       int val = (int) ((Math.sin(step / 23.0 * 2 * Math.PI) + 1) / 2 * (150 - 30) + 30);
-      m_ledBuffer.setHSV(i, hue, 255, val);
+      m_ledBuffer.setHSV(i, hue, sat, val);
     }
     m_led.setData(m_ledBuffer); // Set the data of the LED buffer
     step++; // Increase the step
@@ -114,12 +114,12 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval the interval in milliseconds between each change in the strobe effect
    * @return null
    */
-  public Command strobeEffect(int hue, int value, long interval) {
+  public Command strobeEffect(int hue, int sat, int value, long interval) {
       for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           if (isOn) {
-              m_ledBuffer.setHSV(i, hue, 255, value); // Set the HSV value of the pixel
+              m_ledBuffer.setHSV(i, hue, sat, value); // Set the HSV value of the pixel
           } else {
-              m_ledBuffer.setHSV(i, hue, 255, 0); // Turn off the pixel
+              m_ledBuffer.setHSV(i, hue, sat, 0); // Turn off the pixel
           }
       }
       m_led.setData(m_ledBuffer); // Set the data of the LED buffer
@@ -143,33 +143,33 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval The time interval between each LED update.
    * @return null, as this command never finishes.
    */
-  public Command scanEffect(int hue, int value, long interval) {
+  public Command scanEffect(int hue, int sat, int value, long interval) {
     // Turn off all LEDs
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-      m_ledBuffer.setHSV(i, hue, 255, (int) (value * 0.25));
+      m_ledBuffer.setHSV(i, hue, sat, (int) (value * 0.25));
     }
 
     // Turn on the current LED
-    m_ledBuffer.setHSV(currentLed, hue, 255, value); // Set the HSV value of the pixel
+    m_ledBuffer.setHSV(currentLed, hue, sat, value); // Set the HSV value of the pixel
 
     int previousLed = currentLed - 1;
     if (previousLed >= 0) {
-      m_ledBuffer.setHSV(previousLed, hue, 255, (int) (value * 0.75));
+      m_ledBuffer.setHSV(previousLed, hue, sat, (int) (value * 0.75));
     }
 
     int prevPreviousLed = currentLed - 2;
     if (prevPreviousLed >= 0) {
-      m_ledBuffer.setHSV(prevPreviousLed, hue, 255, (int) (value * 0.50));
+      m_ledBuffer.setHSV(prevPreviousLed, hue, sat, (int) (value * 0.50));
     }
 
     int nextLed = currentLed + 1;
     if (nextLed < m_ledBuffer.getLength()) {
-      m_ledBuffer.setHSV(nextLed, hue, 255, (int) (value * 0.75));
+      m_ledBuffer.setHSV(nextLed, hue, sat, (int) (value * 0.75));
     }
 
     int nextNextLed = currentLed + 2;
     if (nextNextLed < m_ledBuffer.getLength()) {
-      m_ledBuffer.setHSV(nextNextLed, hue, 255, (int) (value * 0.50));
+      m_ledBuffer.setHSV(nextNextLed, hue, sat, (int) (value * 0.50));
     }
     
     m_led.setData(m_ledBuffer); // Set the data of the LED buffer
@@ -205,11 +205,11 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval the interval in milliseconds between each step of the wave effect
    * @return null, as this command never finishes
    */
-  public Command waveEffect(int hue, long interval) {
+  public Command waveEffect(int hue, int sat, long interval) {
         for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           // Calculate the brightness using a sine wave
           int brightness = (int) ((Math.sin((step + i) / (double) m_ledBuffer.getLength() * 2 * Math.PI) + 1) / 2 * 255);
-          m_ledBuffer.setHSV(i, hue, 255, brightness); // Set the HSV value of the pixel
+          m_ledBuffer.setHSV(i, hue, sat, brightness); // Set the HSV value of the pixel
         }
         m_led.setData(m_ledBuffer); // Set the data of the LED buffer
         step++; // Increase the step
@@ -251,33 +251,28 @@ public class LEDsSubSystem extends SubsystemBase {
     return null;
   }
 }
- //Hue: 0-180, Saturation: 0-255, Value: 0-255
- //Hue of 180 = Red, 120 = Green, 60 = Blue, 0 = Red
-
-  //setHSV(int index, int hue, int saturation, int value)
-  //setRGB(int index, int red, int green, int blue)
   
-  /* Hue of:
-   * 0 & 180 = Red
-   * 15 = Red-Orange
-   * 30 = Orange
-   * 45 = Orange-Yellow
-   * 60 = Yellow
-   * 75 = Yellow-Green
-   * 90 = Green
-   * 105 = Green-Blue
-   * 120 = Blue
-   * 135 = Blue-Purple
-   * 150 = Purple
-   * 165 = Purple-Red
-   * 180 & 0 = Red
+  /*
+   * HSV of White = 0, 0, 255
+   * HSV of Black = 0, 0, 0
+   * HSV of Red = 0, 255, 255
+   * HSV of Orange = 30, 255, 255
+   * HSV of Yellow = 60, 255, 255
+   * HSV of Green = 90, 255, 255
+   * HSV of Blue = 120, 255, 255
+   * HSV of Purple = 150, 255, 255
+   * HSV of Red = 180, 255, 255
+   * HSV of Red-Orange = 15, 255, 255
+   * HSV of Orange-Yellow = 45, 255, 255
+   * HSV of Yellow-Green = 75, 255, 255
+   * HSV of Green-Blue = 105, 255, 255
+   * HSV of Blue-Purple = 135, 255, 255
+   * HSV of Purple-Red = 165, 255, 255
    * Saturation of 0 = White, 255 = Color
    * Value of 0 = Off, 255 = Full Brightness
+   * Hues of 0 = Red, 30 = Orange, 60 = Yellow, 90 = Green, 120 = Blue, 150 = Purple, 180 = Red
+   * Hues of 0-30 or 150-180 are red, 30-60 are orange, 60-90 are yellow, 90-120 are green, 120-150 are blue
+   * Hues of 15 is red-orange, 45 is orange-yellow, 75 is yellow-green, 105 is green-blue, 135 is blue-purple, 165 is purple-red
    */
-
-  //Hues of 0 = Red, 30 = Orange, 60 = Yellow, 90 = Green, 120 = Blue, 150 = Purple, 180 = Red
-  //hues of 0-30 or 150-180 are red, 30-60 are orange, 60-90 are yellow, 90-120 are green, 120-150 are blue
-  //Hues of 15 is red-orange, 45 is orange-yellow, 75 is yellow-green, 105 is green-blue, 135 is blue-purple, 165 is purple-red
-
 
 
