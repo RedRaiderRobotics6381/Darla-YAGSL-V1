@@ -16,6 +16,8 @@ public class DriveToNoteCmd extends Command
   private PIDController   xController;
   private PIDController   zController;
   private boolean hasTargets;
+  private double TX = 0;
+  private double TZ = 0;
   boolean droveToNote;
 
   public DriveToNoteCmd(SwerveSubsystem swerveSubsystem)
@@ -58,8 +60,14 @@ public class DriveToNoteCmd extends Command
     hasTargets = result.hasTargets(); // Check if the latest result has any targets.
     PhotonTrackedTarget target = result.getBestTarget(); // Get the best target from the latest result.
     if (hasTargets == true) { // If there are targets found
-      double TZ = target.getYaw(); // Get the yaw of the target
-      double TX = target.getPitch(); // Get the pitch of the target
+      TZ = target.getYaw(); // Get the yaw of the target
+      
+      //The code below is to track a single note instead of sometimes driving towards a note further ahead that it might see.
+      if (TX == 0) { //If the target pitch is 0 (the first time the code runs), set the target pitch to the current pitch
+        TX = target.getPitch();
+      } else if (target.getPitch() < TX) {
+        TX = target.getPitch(); //If the target pitch is less than the current pitch, set the target pitch to the current pitch
+      }
 
       double translationValx = MathUtil.clamp(xController.calculate(TX, -9), -4 , 4); //Tune the setpoint to be where the note is just barely found.
       double translationValz = MathUtil.clamp(zController.calculate(TZ, 0.0), -6.0 , 6.0); //* throttle, 2.5 * throttle);
