@@ -24,6 +24,7 @@ public class DriveToAprilTagPosCmd extends Command
   double yOffset;
   double xyTol;
   String alliance;
+  private boolean atSetPoint;
   private final SwerveSubsystem swerveSubsystem;
   private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(6.0, 6.0);
   private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(6.0, 6.0);
@@ -67,6 +68,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
   public void initialize()
   {
     lastTarget = null;
+    atSetPoint = false;
     //Robot.aprilTagAlliance();
     /*
     * This is being used because for some reason the alliance is not being passed to
@@ -152,14 +154,22 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
       if (omegaController.atGoal()) {
         omegaSpeed = 0;
       }
-
-      swerveSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose2d.getRotation()));
+      if (Math.abs(xSpeed) >= 0.05 || Math.abs(ySpeed) >= 0.05 || Math.abs(omegaSpeed) >= 1){
+        swerveSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose2d.getRotation()));
+      }      
+      else{ atSetPoint = true;}
     }
   }
 
   @Override
+  public boolean isFinished()
+  {
+    return atSetPoint;
+  }
+
+  @Override
   public void end(boolean interrupted) {
-    //swerveSubsystem.lock();
+    swerveSubsystem.lock();
   }
 
 }

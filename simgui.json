@@ -1,5 +1,14 @@
 {
   "HALProvider": {
+    "Addressable LEDs": {
+      "0": {
+        "columns": 1,
+        "start": 1
+      },
+      "window": {
+        "visible": true
+      }
+    },
     "Other Devices": {
       "Talon FX (v6)[2]/Rotor Sensor": {
         "header": {
@@ -84,13 +93,36 @@
     }
   },
   "NetworkTables": {
+    "retained": {
+      "SmartDashboard": {
+        "Auto Chooser": {
+          "open": true
+        },
+        "open": true
+      }
+    },
     "transitory": {
+      "Shuffleboard": {
+        ".metadata": {
+          "open": true
+        },
+        ".recording": {
+          "open": true
+        },
+        "open": true
+      },
       "SmartDashboard": {
         "Field": {
           "open": true
         },
         "open": true,
         "swerve": {
+          "modules": {
+            "backleft": {
+              "open": true
+            },
+            "open": true
+          },
           "open": true
         }
       }

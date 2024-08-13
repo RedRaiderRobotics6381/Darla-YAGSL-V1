@@ -99,7 +99,6 @@ public class Robot extends TimedRobot
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
-    //LEDsSubSystem.setSolidLED(0, 0);
   }
 
   @Override
@@ -110,7 +109,7 @@ public class Robot extends TimedRobot
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
-    LEDsSubSystem.rainbow();
+    LEDsSubSystem.fireEffect(60, 100);
   }
 
   /**
@@ -121,11 +120,6 @@ public class Robot extends TimedRobot
   {
     m_robotContainer.setMotorBrake(true);
     aprilTagAlliance();
-    // ampID     = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
-    // speakerID = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    // stageIDA  = DriverStation.getAlliance().get() == Alliance.Blue ? 14 : 13;
-    // stageIDB  = DriverStation.getAlliance().get() == Alliance.Blue ? 15 : 12;
-    // stageIDC  = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 11;
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -157,13 +151,6 @@ public class Robot extends TimedRobot
     m_robotContainer.setDriveMode();
     m_robotContainer.setMotorBrake(true);
     aprilTagAlliance();
-    // LEDsSubSystem.setSolidLED(45, 10);
-    // LEDsSubSystem.fireEffect();
-    // System.out.println("Speaker; " + AprilTagConstants.speakerID);
-
-    //LEDsSubSystem.setSolidLED(30, 64); //Sets the color to 30 orange, and the brightness to 25%
-    //LEDsSubSystem.setSolidLED(45, 128); //Sets the color to 45 yellow, and the brightness to 50%
-
   }
 
   /**
@@ -218,17 +205,11 @@ public class Robot extends TimedRobot
    * Sets the AprilTag constants based on the alliance color.
    */
   public static void aprilTagAlliance(){
-    // ampID     = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
-    // speakerID = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    // stageIDA  = DriverStation.getAlliance().get() == Alliance.Blue ? 14 : 13;
-    // stageIDB  = DriverStation.getAlliance().get() == Alliance.Blue ? 15 : 12;
-    // stageIDC  = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 11;
     AprilTagConstants.ampID     = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
     AprilTagConstants.speakerID = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
     AprilTagConstants.stageIDA  = DriverStation.getAlliance().get() == Alliance.Blue ? 14 : 13;
     AprilTagConstants.stageIDB  = DriverStation.getAlliance().get() == Alliance.Blue ? 15 : 12;
     AprilTagConstants.stageIDC  = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 11;
-    //System.out.println("Alliance: " + DriverStation.getAlliance().get() + " ampID: " + AprilTagConstants.ampID + " speakerID: " + AprilTagConstants.speakerID + " stageIDA: " + AprilTagConstants.stageIDA + " stageIDB: " + AprilTagConstants.stageIDB + " stageIDC: " + AprilTagConstants.stageIDC);
   }
   
 
@@ -242,13 +223,13 @@ public class Robot extends TimedRobot
     var result = camObj.getLatestResult(); //Get the latest result from PhotonVision
     hasTargets = result.hasTargets(); // Check if the latest result has any targets.
       if (hasTargets == true){
-        //System.out.println("Note Found");
-        LEDsSubSystem.setSolidLED(135, 64);
-        //LEDsSubSystem.fireEffect();
+        LEDsSubSystem.fireEffect(150, 50);
       } else {
-        //System.out.println("No Note Found");
-        LEDsSubSystem.fireEffect();
-        //LEDsSubSystem.setSolidLED(15, 10);
+        if (DriverStation.getAlliance().get() == Alliance.Blue) { 
+          LEDsSubSystem.fireEffect(120, 50);
+        } else {
+          LEDsSubSystem.fireEffect(0, 50);
+        }
       }
     return hasTargets;
   }

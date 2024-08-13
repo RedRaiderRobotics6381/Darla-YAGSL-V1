@@ -16,7 +16,7 @@ public class LEDsSubSystem extends SubsystemBase {
   private AddressableLEDBuffer m_ledBuffer;
   // Store what the last hue of the first pixel is
   private int m_rainbowFirstPixelHue;
-  private int m_fireFirstPixelHue;
+  private int step = 0;
 
   public LEDsSubSystem() {
     m_led = new AddressableLED(1); // Set the LED PWM port to 0
@@ -50,25 +50,33 @@ public class LEDsSubSystem extends SubsystemBase {
     return null;
   }
   
+
   /**
-   * Executes the fire effect on the LEDs.
-   * Generates random hues and brightness values for each LED in the buffer.
-   * Sets the HSV values of each LED in the buffer.
-   * Updates the LED data with the modified buffer.
+   * Executes a fire effect on the LEDs with the specified hue and delay.
    * 
-   * @return null
+   * @param hue   the hue value for the fire effect
+   * @param delay the delay in milliseconds between each step of the effect
+   * @return the Command object representing the fire effect
    */
-  public Command fireEffect() {
+  public Command fireEffect(int hue, long delay) {
     // For every pixel
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-      final var hue = (m_fireFirstPixelHue + (i * 60 / m_ledBuffer.getLength())) % 60;
-      m_ledBuffer.setHSV(i, hue, 255, 64); // Set the HSV value of the pixel
+      int val = (int) ((Math.sin(step / 23.0 * 2 * Math.PI) + 1) / 2 * (150 - 30) + 30);
+      m_ledBuffer.setHSV(i, hue, 255, val);
     }
-    m_fireFirstPixelHue += 3; // Increase the hue by 3 to make the rainbow "move"
-    m_fireFirstPixelHue %= 60; // Keep the hue within the range of 0-60
     m_led.setData(m_ledBuffer); // Set the data of the LED buffer
+    step++; // Increase the step
+    if (step >= 23) step = 0; // Reset the step when it reaches 23
+
+    try {
+      Thread.sleep(delay); // Delay for 100 milliseconds
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     return null;
   }
+
 
   /**
    * Returns a Command object that represents the fire effect.
@@ -96,7 +104,7 @@ public class LEDsSubSystem extends SubsystemBase {
    * @return The Command object representing the default command.
    */
   public Command getDefaultCommand() {
-    return fireEffect();
+    return fireEffect(10, 50);
   }
 }
  //Hue: 0-180, Saturation: 0-255, Value: 0-255
