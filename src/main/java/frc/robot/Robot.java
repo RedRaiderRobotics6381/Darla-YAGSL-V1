@@ -65,7 +65,8 @@ public class Robot extends TimedRobot
     // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
     // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
-    LEDsSubSystem.rainbow();
+    //LEDsSubSystem.rainbow();
+    //LEDsSubSystem.strobeEffect(75, 255, 25);
     
   }
 
@@ -109,7 +110,11 @@ public class Robot extends TimedRobot
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
-    LEDsSubSystem.fireEffect(60, 100);
+    //LEDsSubSystem.fadeEffect(60, 100);
+    //LEDsSubSystem.strobeEffect(75, 255, 500);
+    //LEDsSubSystem.fireEffect();
+    LEDsSubSystem.scanEffect(60, 255, 50);
+    //LEDsSubSystem.waveEffect(60, 50);
   }
 
   /**
@@ -223,12 +228,12 @@ public class Robot extends TimedRobot
     var result = camObj.getLatestResult(); //Get the latest result from PhotonVision
     hasTargets = result.hasTargets(); // Check if the latest result has any targets.
       if (hasTargets == true){
-        LEDsSubSystem.fireEffect(150, 50);
+        LEDsSubSystem.fadeEffect(150, 50);
       } else {
         if (DriverStation.getAlliance().get() == Alliance.Blue) { 
-          LEDsSubSystem.fireEffect(120, 50);
+          LEDsSubSystem.fadeEffect(120, 50);
         } else {
-          LEDsSubSystem.fireEffect(0, 50);
+          LEDsSubSystem.fadeEffect(0, 50);
         }
       }
     return hasTargets;
