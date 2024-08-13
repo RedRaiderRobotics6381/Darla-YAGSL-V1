@@ -57,8 +57,7 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param delay the delay in milliseconds between each step of the fade effect
    * @return the Command object representing the fade effect
    */
-  public Command fadeEffect(int hue, int sat, long delay) {
-    // For every pixel
+  public Command fadeEffect(int hue, int sat) {
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
       int val = (int) ((Math.sin(step / 23.0 * 2 * Math.PI) + 1) / 2 * (150 - 30) + 30);
       m_ledBuffer.setHSV(i, hue, sat, val);
@@ -66,13 +65,6 @@ public class LEDsSubSystem extends SubsystemBase {
     m_led.setData(m_ledBuffer); // Set the data of the LED buffer
     step++; // Increase the step
     if (step >= 23) step = 0; // Reset the step when it reaches 23
-
-    try {
-      Thread.sleep(delay); // Delay for 100 milliseconds
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
     return null;
   }
   
@@ -96,11 +88,6 @@ public class LEDsSubSystem extends SubsystemBase {
         }
         m_led.setData(m_ledBuffer); // Set the data of the LED buffer
 
-        try {
-            Thread.sleep(250); // Sleep for a short interval to create a flickering effect
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return null; // This command never finishes
     }
 
@@ -114,7 +101,7 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval the interval in milliseconds between each change in the strobe effect
    * @return null
    */
-  public Command strobeEffect(int hue, int sat, int value, long interval) {
+  public Command strobeEffect(int hue, int sat, int value) {
       for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           if (isOn) {
               m_ledBuffer.setHSV(i, hue, sat, value); // Set the HSV value of the pixel
@@ -123,12 +110,6 @@ public class LEDsSubSystem extends SubsystemBase {
           }
       }
       m_led.setData(m_ledBuffer); // Set the data of the LED buffer
-
-      try {
-          Thread.sleep(interval); // Sleep for the specified interval
-      } catch (InterruptedException e) {
-          e.printStackTrace();
-      }
 
       isOn = !isOn; // Toggle the state
       return null;
@@ -143,7 +124,7 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval The time interval between each LED update.
    * @return null, as this command never finishes.
    */
-  public Command scanEffect(int hue, int sat, int value, long interval) {
+  public Command scanEffect(int hue, int sat, int value) {
     // Turn off all LEDs
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
       m_ledBuffer.setHSV(i, hue, sat, (int) (value * 0.25));
@@ -188,12 +169,6 @@ public class LEDsSubSystem extends SubsystemBase {
         direction = true;
       }
     }
-
-    try {
-      Thread.sleep(interval); // Sleep for the specified interval
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
     return null; // This command never finishes
   }
 
@@ -205,7 +180,7 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval the interval in milliseconds between each step of the wave effect
    * @return null, as this command never finishes
    */
-  public Command waveEffect(int hue, int sat, long interval) {
+  public Command waveEffect(int hue, int sat) {
         for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           // Calculate the brightness using a sine wave
           int brightness = (int) ((Math.sin((step + i) / (double) m_ledBuffer.getLength() * 2 * Math.PI) + 1) / 2 * 255);
@@ -214,11 +189,6 @@ public class LEDsSubSystem extends SubsystemBase {
         m_led.setData(m_ledBuffer); // Set the data of the LED buffer
         step++; // Increase the step
 
-        try {
-          Thread.sleep(interval); // Sleep for the specified interval
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
         return null; // This command never finishes
     }
 

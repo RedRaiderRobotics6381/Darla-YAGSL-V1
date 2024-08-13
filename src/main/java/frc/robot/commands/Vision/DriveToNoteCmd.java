@@ -7,7 +7,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-//import frc.robot.commands.swervedrive.drivebase.DriveDistancePPID;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class DriveToNoteCmd extends Command
@@ -18,7 +17,7 @@ public class DriveToNoteCmd extends Command
   private boolean hasTargets;
   private double TX = 0;
   private double TZ = 0;
-  boolean droveToNote;
+  boolean droveToNote = false;
 
   public DriveToNoteCmd(SwerveSubsystem swerveSubsystem)
   {
@@ -36,6 +35,7 @@ public class DriveToNoteCmd extends Command
   public void initialize()
   {
     droveToNote = false;
+    hasTargets = false;
     xController = new PIDController(0.125, 0.00, 0.0);
     //yController = new PIDController(0.0625, 0.00375, 0.0001);
     zController = new PIDController(0.09,0.0, 0.000);
@@ -65,7 +65,7 @@ public class DriveToNoteCmd extends Command
       //The code below is to track a single note instead of sometimes driving towards a note further ahead that it might see.
       if (TX == 0) { //If the target pitch is 0 (the first time the code runs), set the target pitch to the current pitch
         TX = target.getPitch();
-      } else if (target.getPitch() < TX) {
+      } else if (target.getPitch() <= TX) {
         TX = target.getPitch(); //If the target pitch is less than the current pitch, set the target pitch to the current pitch
       }
 
@@ -114,6 +114,8 @@ public class DriveToNoteCmd extends Command
   public void end(boolean interrupted)
   {
     //swerveSubsystem.lock();
+    TX = 0;
+    droveToNote = false;
     //Robot.LEDsSubSystem.fireEffect(); // Fire the LEDs effect
   }
 }

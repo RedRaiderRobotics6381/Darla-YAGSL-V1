@@ -168,8 +168,8 @@ public class RobotContainer
                                                        0.1,
                                                        drivebase)); 
 
-    driverXbox.b().onTrue(new DriveToNoteCmd(drivebase).andThen
-                         (new DriveDistancePPID(-.5, 0, 0, .1, drivebase)));
+    driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase).andThen
+                            (new DriveDistancePPID(-.5, 0, 0, .1, drivebase)));
 
     // driverXbox.y().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
     //               new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));

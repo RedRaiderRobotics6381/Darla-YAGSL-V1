@@ -110,11 +110,11 @@ public class Robot extends TimedRobot
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
-    // LEDsSubSystem.fadeEffect(60, 255, 100);
-    // LEDsSubSystem.strobeEffect(75, 255, 255, 500);
+    // LEDsSubSystem.fadeEffect(60, 255);
+    // LEDsSubSystem.strobeEffect(75, 255, 255);
     // LEDsSubSystem.fireEffect();
-    LEDsSubSystem.scanEffect(60, 255, 255, 50);
-    //LEDsSubSystem.waveEffect(60, 50);
+    LEDsSubSystem.scanEffect(60, 255, 64);
+    // LEDsSubSystem.waveEffect(60, 50);
   }
 
   /**
@@ -228,12 +228,17 @@ public class Robot extends TimedRobot
     var result = camObj.getLatestResult(); //Get the latest result from PhotonVision
     hasTargets = result.hasTargets(); // Check if the latest result has any targets.
       if (hasTargets == true){
-        LEDsSubSystem.fadeEffect(150, 255, 50);
+        LEDsSubSystem.fadeEffect(150, 255);
+        //LEDsSubSystem.setSolidLED(150, 255, 50);
       } else {
         if (DriverStation.getAlliance().get() == Alliance.Blue) { 
-          LEDsSubSystem.fadeEffect(120, 255, 50);
+          // LEDsSubSystem.fadeEffect(120, 255);
+          LEDsSubSystem.scanEffect(120, 255, 64);
+          //LEDsSubSystem.setSolidLED(120, 255, 50);
         } else {
-          LEDsSubSystem.fadeEffect(0, 255, 50);
+          // LEDsSubSystem.fadeEffect(0, 255);
+          LEDsSubSystem.scanEffect(0, 255, 64);
+          //LEDsSubSystem.setSolidLED(0, 255, 50);
         }
       }
     return hasTargets;
