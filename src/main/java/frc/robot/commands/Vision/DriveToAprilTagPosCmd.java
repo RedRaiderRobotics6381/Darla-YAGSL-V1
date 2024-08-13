@@ -154,10 +154,12 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
       if (omegaController.atGoal()) {
         omegaSpeed = 0;
       }
-      if (Math.abs(xSpeed) >= 0.05 || Math.abs(ySpeed) >= 0.05 || Math.abs(omegaSpeed) >= 1){
-        swerveSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose2d.getRotation()));
-      }      
-      else{ atSetPoint = true;}
+
+      if (Math.abs(xSpeed) >= xyTol / 2 || Math.abs(ySpeed) >= xyTol / 2 || Math.abs(omegaSpeed) >= 1){
+        swerveSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, -ySpeed, omegaSpeed, robotPose2d.getRotation()));
+      }
+      else{ atSetPoint = true;} 
+
     }
   }
 
