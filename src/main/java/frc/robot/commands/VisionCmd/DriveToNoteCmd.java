@@ -1,4 +1,4 @@
-package frc.robot.commands.Vision;
+package frc.robot.commands.VisionCmd;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -6,7 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class DriveToNoteCmd extends Command
@@ -18,6 +18,7 @@ public class DriveToNoteCmd extends Command
   private double TX = 0;
   private double TZ = 0;
   boolean droveToNote = false;
+  VisionSubsystem m_Vision;
 
   public DriveToNoteCmd(SwerveSubsystem swerveSubsystem)
   {
@@ -56,7 +57,7 @@ public class DriveToNoteCmd extends Command
   @Override
   public void execute()
   {
-    var result = Robot.camObj.getLatestResult();  // Get the latest result from PhotonVision
+    var result = VisionSubsystem.camObj.getLatestResult();  // Get the latest result from PhotonVision
     hasTargets = result.hasTargets(); // Check if the latest result has any targets.
     PhotonTrackedTarget target = result.getBestTarget(); // Get the best target from the latest result.
     if (hasTargets == true) { // If there are targets found

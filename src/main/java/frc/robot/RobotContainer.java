@@ -18,9 +18,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Vision.DriveToAprilTagPosCmd;
-import frc.robot.commands.Vision.DriveToNoteCmd;
+import frc.robot.commands.VisionCmd.DriveToNoteCmd;
+import frc.robot.commands.VisionCmd.DriveToAprilTagPosCmd;
 import frc.robot.commands.swervedrive.drivebase.DriveDistancePPID;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
@@ -42,6 +43,7 @@ public class RobotContainer
   
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve/neo"));
+  VisionSubsystem visionSubsystem;
   //private final LEDsSubSystem ledsSubSystem;
   
   //private final DriveToAprilTagPosCmd driveToAprilTagPosCmd = new DriveToAprilTagPosCmd(drivebase);
@@ -240,9 +242,9 @@ public class RobotContainer
       if (driverXbox.getHID().getRightStickButton() == false){  
         yawToSpeakerValue = MathUtil.applyDeadband(-driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND);
       } else{
-        if (Robot.camAprTgLow.getLatestResult().hasTargets() == true){
-          if (Robot.camAprTgLow.getLatestResult().getBestTarget().getFiducialId() == fiducialId){
-            yawToSpeakerValue = MathUtil.clamp(zController.calculate(Robot.camAprTgLow.getLatestResult().getBestTarget().getYaw(),0), -1.0 , 1.0);
+        if (VisionSubsystem.camAprTgLow.getLatestResult().hasTargets() == true){
+          if (VisionSubsystem.camAprTgLow.getLatestResult().getBestTarget().getFiducialId() == fiducialId){
+            yawToSpeakerValue = MathUtil.clamp(zController.calculate(VisionSubsystem.camAprTgLow.getLatestResult().getBestTarget().getYaw(),0), -1.0 , 1.0);
           }
         }
       }
