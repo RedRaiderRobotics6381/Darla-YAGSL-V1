@@ -32,8 +32,9 @@ public class Robot extends TimedRobot
 
   // public static PhotonCamera camObj = new PhotonCamera("camObj"); // Create a new PhotonCamera object
   // public static PhotonCamera camAprTgLow = new PhotonCamera("camAprTgLow"); // Create a new PhotonCamera object
-  //public static LEDsSubsystem m_LEDsSubSystem = new LEDsSubsystem(); // Create a new LEDsSubSystem object
-  private LEDsSubSystem m_LEDsSubSystem;
+  public static LEDsSubSystem m_LEDsSubSystem = new LEDsSubSystem(); // Create a new LEDsSubSystem object
+  // public static LEDsSubsystem m_LEDsSubSystem = new LEDsSubsystem(); // Create a new LEDsSubSystem object
+  //private LEDsSubSystem m_LEDsSubSystem;
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
@@ -59,7 +60,7 @@ public class Robot extends TimedRobot
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    m_Vision = new VisionSubsystem();
+    m_Vision = new VisionSubsystem(m_LEDsSubSystem);
 
 
     
@@ -69,7 +70,6 @@ public class Robot extends TimedRobot
     // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
     //LEDsSubSystem.rainbow();
-    //LEDsSubSystem.strobeEffect(75, 255, 25);
     
   }
 
@@ -110,9 +110,9 @@ public class Robot extends TimedRobot
       disabledTimer.stop();
     }
     // LEDsSubSystem.fadeEffect(60, 255);
-    // LEDsSubSystem.strobeEffect(75, 255, 255);
+    //m_LEDsSubSystem.strobeEffectVar(75, 255, 255, 0.25);
     // LEDsSubSystem.fireEffect();
-    m_LEDsSubSystem.scanEffect(60, 255, 64);
+    m_LEDsSubSystem.scanEffect(60, 255, 255);
     // LEDsSubSystem.waveEffect(60, 50);
   }
 

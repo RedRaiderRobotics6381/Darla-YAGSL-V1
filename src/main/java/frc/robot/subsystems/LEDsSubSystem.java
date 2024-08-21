@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.util.Random;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -17,9 +18,12 @@ public class LEDsSubSystem extends SubsystemBase {
   private AddressableLEDBuffer m_ledBuffer;
   private int m_rainbowFirstPixelHue;
   private int step = 0;
-  private boolean isOn = false;
+  // private boolean isOn = false;
   private int currentLed = 0;
   private boolean direction = true;
+  Timer ledTimerOff = new Timer();
+  Timer ledTimerOn = new Timer();
+  int setValue;
 
   public LEDsSubSystem() {
     m_led = new AddressableLED(1); // Set the LED PWM port to 0
@@ -101,18 +105,27 @@ public class LEDsSubSystem extends SubsystemBase {
    * @param interval the interval in milliseconds between each change in the strobe effect
    * @return null
    */
-  public Command strobeEffect(int hue, int sat, int value) {
-      for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-          if (isOn) {
-              m_ledBuffer.setHSV(i, hue, sat, value); // Set the HSV value of the pixel
-          } else {
-              m_ledBuffer.setHSV(i, hue, sat, 0); // Turn off the pixel
-          }
-      }
-      m_led.setData(m_ledBuffer); // Set the data of the LED buffer
-
-      isOn = !isOn; // Toggle the state
-      return null;
+  public Command strobeEffectVar(int hue, int sat, int value, double duration) {
+    if (ledTimerOn.get() == 0 && ledTimerOff.get() == 0){ // If the timers are not running
+      ledTimerOn.start(); // Start the on timer
+    }
+    if (ledTimerOn.get() >= duration){ // If the on timer has reached the duration
+      ledTimerOn.stop(); // Stop the on timer
+      ledTimerOn.reset(); // Reset the on timer
+      ledTimerOff.start(); // Start the off timer
+      setValue = value; // Set the value to the input value
+    }
+    else if (ledTimerOff.get() >= duration){ // If the off timer has reached the duration
+      ledTimerOff.stop(); // Stop the off timer
+      ledTimerOff.reset(); // Reset the off timer
+      ledTimerOn.start(); // Start the on timer
+      setValue = 0; // Set the value to 0
+    }
+    for (var i = 0; i < m_ledBuffer.getLength(); i++) { // For every pixel
+        m_ledBuffer.setHSV(i, hue, sat, setValue); // Set the HSV value of the pixel
+    }
+    m_led.setData(m_ledBuffer); // Set the data of the LED buffer
+    return null;
   }
 
   /**
