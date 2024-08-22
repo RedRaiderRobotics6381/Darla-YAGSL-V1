@@ -236,7 +236,7 @@ public class RobotContainer
     PIDController zController = null;
     int fiducialId = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4; //speakerID
     try {
-      zController = new PIDController(.05, 0.0, 0.0);//0.07,0.0, 0.000;
+      zController = new PIDController(.04, 0.0, 0.0);//0.07,0.0, 0.000;
       zController.setTolerance(.5);
 
       if (driverXbox.getHID().getRightStickButton() == false){  

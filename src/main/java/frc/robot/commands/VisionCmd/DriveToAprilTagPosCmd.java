@@ -32,8 +32,8 @@ public class DriveToAprilTagPosCmd extends Command
   // private String m_alliance;
   private boolean m_atSetPoint;
   private final SwerveSubsystem m_swerveSubsystem;
-  private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.5, Constants.MAX_SPEED * 0.25);
-  private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.5, Constants.MAX_SPEED * 0.25);
+  private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.75, Constants.MAX_SPEED * 0.75);
+  private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.75, Constants.MAX_SPEED * 0.75);
   private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS = new TrapezoidProfile.Constraints(Math.PI*2, Math.PI);
   private Transform3d TAG_TO_GOAL = new Transform3d(new Translation3d(0, 0, 0),
   new Rotation3d(0.0,0.0,Math.PI));
@@ -41,9 +41,9 @@ public class DriveToAprilTagPosCmd extends Command
   //private final PhotonCamera photonCamera;
   private final Supplier<Pose2d> m_poseProvider;
   
-  private final ProfiledPIDController m_xController = new ProfiledPIDController(2.25, 0, 0, X_CONSTRAINTS);
-  private final ProfiledPIDController m_yController = new ProfiledPIDController(2.25, 0, 0, Y_CONSTRAINTS);
-  private final ProfiledPIDController m_omegaController = new ProfiledPIDController(2, 0, 0, OMEGA_CONSTRAINTS);
+  private final ProfiledPIDController m_xController = new ProfiledPIDController(4.0, 0, 0, X_CONSTRAINTS);
+  private final ProfiledPIDController m_yController = new ProfiledPIDController(4.0, 0, 0, Y_CONSTRAINTS);
+  private final ProfiledPIDController m_omegaController = new ProfiledPIDController(3.0, 0, 0, OMEGA_CONSTRAINTS);
 
   private PhotonTrackedTarget lastTarget;
 
@@ -62,7 +62,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
                                   new Rotation3d(0.0,0.0,Math.PI));
 
     m_xController.setTolerance(m_xyTol); //meters
-    m_yController.setTolerance(xyTol); //meters
+    m_yController.setTolerance(m_xyTol); //meters
     
     addRequirements(swerveSubsystem);
   }
@@ -123,7 +123,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
       
       Optional<PhotonTrackedTarget> targetOpt = photonRes.getTargets().stream() // Get the targets from the latest result
       .filter(t -> t.getFiducialId() == aprilTagNum) // Filter the targets to find the target with the specified ID
-      .filter(t -> !t.equals(lastTarget) && t.getPoseAmbiguity() != -1) // Filter the targets to find the target that is not the last target and has a valid pose
+      //.filter(t -> !t.equals(lastTarget) && t.getPoseAmbiguity() != -1) // Filter the targets to find the target that is not the last target and has a valid pose
       .findFirst(); // Get the first target that matches the criteria
 
       if (targetOpt.isPresent()) { // If a target is found
@@ -132,7 +132,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
 
         // Transform the robot's pose to find the camera's pose
         Pose3d cameraPose3d = robotPose3d
-            .transformBy(new Transform3d(new Translation3d(0.051, 0.0, 0.536), new Rotation3d(0, Math.toRadians(-20), Math.toRadians(180))));
+            .transformBy(new Transform3d(new Translation3d(0.051, 0.0, 0.536), new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0))));
 
         // Trasnform the camera's pose to the target's pose
         Transform3d camToTarget3d = target.getBestCameraToTarget(); // Get the best camera to target transform
@@ -144,11 +144,11 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
         m_yController.setGoal(goalPose2d.getY()); // Set the goal for the y controller
         m_omegaController.setGoal(goalPose2d.getRotation().getRadians()); // Set the goal for the omega controller
       }
-      else{ // If a target is not found
-        m_xController.setGoal(robotPose2d.getX()); // Set the goal for the x controller
-        m_yController.setGoal(robotPose2d.getY()); // Set the goal for the y controller
-        m_omegaController.setGoal(robotPose2d.getRotation().getRadians()); // Set the goal for the omega controller
-      }
+      // else{ // If a target is not found
+      //   m_xController.setGoal(robotPose2d.getX()); // Set the goal for the x controller
+      //   m_yController.setGoal(robotPose2d.getY()); // Set the goal for the y controller
+      //   m_omegaController.setGoal(robotPose2d.getRotation().getRadians()); // Set the goal for the omega controller
+      // }
 
     }
 
@@ -160,15 +160,16 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
     
 
       double ySpeed; // Declare a variable to store the y speed
-      if (!m_yController.atGoal()) {ySpeed = m_yController.calculate(robotPose3d.getX());} // If the y controller is not at the goal, calculate the y speed
+      if (!m_yController.atGoal()) {ySpeed = m_yController.calculate(robotPose3d.getY());} // If the y controller is not at the goal, calculate the y speed
       else {ySpeed = 0;} // If the y controller is at the goal, set the y speed to 0
 
       double omegaSpeed; // Declare a variable to store the omega speed
-      if (!m_omegaController.atGoal()) {omegaSpeed = m_omegaController.calculate(robotPose3d.getX());} // If the omega controller is not at the goal, calculate the omega speed
+      if (!m_omegaController.atGoal()) {omegaSpeed = m_omegaController.calculate(robotPose2d.getRotation().getRadians());} // If the omega controller is not at the goal, calculate the omega speed
       else {omegaSpeed = 0;} // If the omega controller is at the goal, set the omega speed to 0
 
       if (!m_xController.atGoal() && !m_yController.atGoal() && !m_omegaController.atGoal()){ // If the x, y, and omega controllers are not at the goal
-        m_swerveSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, -ySpeed, omegaSpeed, robotPose2d.getRotation())); // Drive the swerve subsystem based on the calculated speeds
+        m_swerveSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, 
+        ySpeed, omegaSpeed, robotPose2d.getRotation())); // Drive the swerve subsystem based on the calculated speeds
       }
       else { // If the x, y, and omega controllers are at the goal
         m_swerveSubsystem.lock(); // Lock the swerve subsystem
