@@ -1,7 +1,6 @@
 package frc.robot.commands.VisionCmd;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -29,7 +28,6 @@ public class DriveToAprilTagPosCmd extends Command
   private double m_xOffset;
   private double m_yOffset;
   private double m_xyTol;
-  // private String m_alliance;
   private boolean m_atSetPoint;
   private final SwerveSubsystem m_swerveSubsystem;
   private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.75, Constants.MAX_SPEED * 0.75);
@@ -38,7 +36,6 @@ public class DriveToAprilTagPosCmd extends Command
   private Transform3d TAG_TO_GOAL = new Transform3d(new Translation3d(0, 0, 0),
   new Rotation3d(0.0,0.0,Math.PI));
   
-  //private final PhotonCamera photonCamera;
   private final Supplier<Pose2d> m_poseProvider;
   
   private final ProfiledPIDController m_xController = new ProfiledPIDController(4.0, 0, 0, X_CONSTRAINTS);
@@ -92,9 +89,6 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
     m_omegaController.reset(robotPose.getRotation().getRadians());
     m_xController.reset(robotPose.getX());
     m_yController.reset(robotPose.getY());
-    //int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    //System.out.println(" April Tag: " + aprilTag + " April Tag Number: " + aprilTagNum + " X Offset: " + xOffset + " Y Offset: " + yOffset + " XY Tolerance: " + xyTol);
-  
   }
 
   /**
@@ -144,12 +138,11 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
         m_yController.setGoal(goalPose2d.getY()); // Set the goal for the y controller
         m_omegaController.setGoal(goalPose2d.getRotation().getRadians()); // Set the goal for the omega controller
       }
-      // else{ // If a target is not found
-      //   m_xController.setGoal(robotPose2d.getX()); // Set the goal for the x controller
-      //   m_yController.setGoal(robotPose2d.getY()); // Set the goal for the y controller
-      //   m_omegaController.setGoal(robotPose2d.getRotation().getRadians()); // Set the goal for the omega controller
-      // }
-
+      else{ // If a target is not found
+        m_xController.setGoal(robotPose2d.getX()); // Set the goal for the x controller
+        m_yController.setGoal(robotPose2d.getY()); // Set the goal for the y controller
+        m_omegaController.setGoal(robotPose2d.getRotation().getRadians()); // Set the goal for the omega controller
+      }
     }
 
     if (lastTarget != null) { // If a target is found
