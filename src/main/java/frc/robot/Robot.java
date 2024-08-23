@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.AprilTagConstants;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
+import frc.robot.subsystems.Vision.ObjectVisionSubsystem;
+import frc.robot.subsystems.Vision.AprilTagVisionSubsystem.Cameras;
 import frc.robot.subsystems.LEDsSubSystem;
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class Robot extends TimedRobot
 {
   private static Robot   instance;
   private Command m_autonomousCommand;
-  VisionSubsystem m_Vision;
+  ObjectVisionSubsystem m_Vision;
 
   // public static PhotonCamera camObj = new PhotonCamera("camObj"); // Create a new PhotonCamera object
   // public static PhotonCamera camAprTgLow = new PhotonCamera("camAprTgLow"); // Create a new PhotonCamera object
@@ -60,7 +62,7 @@ public class Robot extends TimedRobot
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    m_Vision = new VisionSubsystem(m_LEDsSubSystem);
+    m_Vision = new ObjectVisionSubsystem(m_LEDsSubSystem);
 
 
     
@@ -88,6 +90,9 @@ public class Robot extends TimedRobot
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    AprilTagVisionSubsystem.camAprTgLowCamLatancyAlert.set(AprilTagVisionSubsystem.getLatestResult(Cameras.CAM_APR_TG_LOW).getLatencyMillis() > 100);
+    AprilTagVisionSubsystem.updateVisionField();
+    
   }
 
   /**
@@ -203,6 +208,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationPeriodic()
   {
+        AprilTagVisionSubsystem.getVisionSim().update(RobotState.robotPose);
   }
   
   /**

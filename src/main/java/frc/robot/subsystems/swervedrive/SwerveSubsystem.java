@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,18 +24,27 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
+import frc.robot.Robot;
+import frc.robot.RobotState;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
+import swervelib.imu.SwerveIMU;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -86,9 +96,11 @@ public class SwerveSubsystem extends SubsystemBase
     {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
+    
+    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     // swerveDrive.setMaximumSpeed(Units.feetToMeters(14.5));
+    resetOdometry(RobotState.robotPose);
     setupPathPlanner();
   }
 
@@ -380,7 +392,36 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    clampPose();
+    SmartDashboard.putData("swerve/Swerve Subsystem", this);
+    RobotState.robotPose = getPose();
+    ArrayList<EstimatedRobotPose> estimatedRobotPoses = AprilTagVisionSubsystem.getEstimatedGlobalPose();
+    if(Robot.isReal()) {
+        for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
+            addVisionMeasurement(estimatedRobotPose.estimatedPose.toPose2d(), estimatedRobotPose.timestampSeconds);
+        }
+    }
   }
+  
+  private void clampPose() {
+    Pose2d pose = getPose();
+    if(pose.getX() < 0) resetOdometry(new Pose2d(0, pose.getY(), pose.getRotation()));
+    if(pose.getX() > 16.5) resetOdometry(new Pose2d(16.5, pose.getY(), pose.getRotation()));
+
+    if(pose.getY() < 0) resetOdometry(new Pose2d(pose.getX(), 0, pose.getRotation()));
+    if(pose.getY() > 8.2) resetOdometry(new Pose2d(pose.getX(), 8.2, pose.getRotation()));
+  }
+
+   /**
+   * Add a vision measurement to the {@link SwerveDrivePoseEstimator} and update the {@link SwerveIMU} gyro reading with
+   * the given timestamp of the vision measurement.
+   *
+   * @param robotPose Robot {@link Pose2d} as measured by vision.
+   * @param timeStamp Timestamp the measurement was taken as time since startup, should be taken from {@link Timer#getFPGATimestamp()} or similar sources.
+   */
+    public void addVisionMeasurement(Pose2d robotPose, double timeStamp) {
+        swerveDrive.addVisionMeasurement(robotPose, timeStamp);
+    }
 
   @Override
   public void simulationPeriodic()

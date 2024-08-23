@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.AprilTagConstants;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 
@@ -111,7 +111,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
                              0.0,
                              new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
 
-    PhotonPipelineResult photonRes = VisionSubsystem.camAprTgLow.getLatestResult(); // Get the latest result from PhotonVision
+    PhotonPipelineResult photonRes = AprilTagVisionSubsystem.camAprTgLow.getLatestResult(); // Get the latest result from PhotonVision
 
     if (photonRes.hasTargets()) { // Check if the latest result has any targets
       
