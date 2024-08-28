@@ -1,8 +1,10 @@
 package frc.robot.commands.VisionCmd;
 import java.util.Optional;
 import java.util.function.Supplier;
+
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -16,8 +18,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.AprilTagConstants;
-import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.Vision;
+import frc.robot.subsystems.swervedrive.Vision.Cameras;
+
+
 
 
 public class DriveToAprilTagPosCmd extends Command
@@ -30,6 +35,8 @@ public class DriveToAprilTagPosCmd extends Command
   private double m_xyTol;
   private boolean m_atSetPoint;
   private final SwerveSubsystem m_swerveSubsystem;
+  private final Vision vision;
+  private Cameras camera;
   private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.75, Constants.MAX_SPEED * 0.75);
   private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(Constants.MAX_SPEED * 0.75, Constants.MAX_SPEED * 0.75);
   private static final TrapezoidProfile.Constraints OMEGA_CONSTRAINTS = new TrapezoidProfile.Constraints(Math.PI*2, Math.PI);
@@ -44,7 +51,7 @@ public class DriveToAprilTagPosCmd extends Command
 
   private PhotonTrackedTarget lastTarget;
 
-public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, double xyTol, SwerveSubsystem swerveSubsystem)
+public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, double xyTol, Vision vision, SwerveSubsystem swerveSubsystem)
   {  
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
@@ -52,6 +59,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
     this.m_xOffset = xOffset;
     this.m_yOffset = yOffset;
     this.m_xyTol = xyTol;
+    this.vision = vision;
     this.m_swerveSubsystem = swerveSubsystem;
     this.m_poseProvider = swerveSubsystem::getPose;
     
@@ -73,6 +81,7 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
     lastTarget = null;
     m_atSetPoint = false;
     Robot.aprilTagAlliance();
+
     /*
     * This is being used because for some reason the alliance is not being passed to
     * the command from Robot.aprilTagAlliance() as an integer, so we are using a string instead.
@@ -111,8 +120,9 @@ public DriveToAprilTagPosCmd(String aprilTag, double xOffset, double yOffset, do
                              0.0,
                              new Rotation3d(0.0, 0.0, robotPose2d.getRotation().getRadians()));
 
-    PhotonPipelineResult photonRes = AprilTagVisionSubsystem.camAprTgLow.getLatestResult(); // Get the latest result from PhotonVision
-
+    // PhotonPipelineResult photonRes = Vision.getLatestResult(Vision.Cameras.APR_TG_LOW_CAM); // Get the latest result from PhotonVision
+    PhotonPipelineResult photonRes = vision.getLatestResult(camera.APR_TG_LOW_CAM);
+    
     if (photonRes.hasTargets()) { // Check if the latest result has any targets
       
       Optional<PhotonTrackedTarget> targetOpt = photonRes.getTargets().stream() // Get the targets from the latest result

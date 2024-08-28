@@ -6,6 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -19,11 +22,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.VisionCmd.DriveToNoteCmd;
-import frc.robot.commands.VisionCmd.DriveToAprilTagPosCmd;
+import frc.robot.commands.VisionCmd.DriveToPoseCmd;
+// import frc.robot.commands.VisionCmd.DriveToAprilTagPosCmd;
+import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.DriveDistancePPID;
-import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
+//import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
 import frc.robot.subsystems.Vision.ObjectVisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.Vision;
+import frc.robot.subsystems.swervedrive.Vision.Cameras;
+
 import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -45,6 +53,7 @@ public class RobotContainer
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve/neo"));
   ObjectVisionSubsystem visionSubsystem;
+  Vision vision;
   //private final LEDsSubSystem ledsSubSystem;
   
   //private final DriveToAprilTagPosCmd driveToAprilTagPosCmd = new DriveToAprilTagPosCmd(drivebase);
@@ -75,17 +84,16 @@ public class RobotContainer
     // right stick controls the rotational velocity 
     // buttons are quick rotation positions to different ways to face
     // WARNING: default buttons are on the same buttons as the ones defined in configureBindings
-    // AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-    //                                                                () -> -MathUtil.applyDeadband(driverXbox.getLeftY(),
-    //                                                                                              OperatorConstants.LEFT_Y_DEADBAND),
-    //                                                                () -> -MathUtil.applyDeadband(driverXbox.getLeftX(),
-    //                                                                                              OperatorConstants.LEFT_X_DEADBAND),
-    //                                                                () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
-    //                                                                                              OperatorConstants.RIGHT_X_DEADBAND),
-    //                                                                 driverXbox.getHID()::getYButtonPressed,
-    //                                                                 driverXbox.getHID()::getAButtonPressed,
-    //                                                                 driverXbox.getHID()::getXButtonPressed,
-    //                                                                 driverXbox.getHID()::getBButtonPressed);
+    AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
+                                                                   () -> -MathUtil.applyDeadband(driverXbox.getLeftY(),
+                                                                                                 OperatorConstants.LEFT_Y_DEADBAND),
+                                                                   () -> -MathUtil.applyDeadband(driverXbox.getLeftX(),
+                                                                                                 OperatorConstants.LEFT_X_DEADBAND),
+                                                                                                 () -> yawToSpeaker(),
+                                                                    driverXbox.povUp(),
+                                                                    driverXbox.povDown(),
+                                                                    driverXbox.povRight(),
+                                                                    driverXbox.povLeft());
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -121,7 +129,8 @@ public class RobotContainer
         () -> driverXbox.getRightX());
 
     drivebase.setDefaultCommand(
-        !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
+        // !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
+        !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : closedAbsoluteDriveAdv);
   }
 
   /**
@@ -156,26 +165,31 @@ public class RobotContainer
     //driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
     //driverXbox.b().whileTrue(new DriveDistance(.25, 0, 6, drivebase));
     //new JoystickButton(driverXbox, 4).whileTrue(new DriveDistance(drivebase));
-    driverXbox.povUp().onTrue(new DriveDistancePPID(1, 0, 0, .1, drivebase));
-    driverXbox.povDown().onTrue(new DriveDistancePPID(-1, 0, 0, .1, drivebase));
-    driverXbox.povRight().onTrue(new DriveDistancePPID(0, -1, 0, .1, drivebase));
-    driverXbox.povLeft().onTrue(new DriveDistancePPID(0, 1, 0, .1, drivebase));
+    // driverXbox.povUp().onTrue(new DriveDistancePPID(1, 0, 0, .1, drivebase));
+    // driverXbox.povDown().onTrue(new DriveDistancePPID(-1, 0, 0, .1, drivebase));
+    // driverXbox.povRight().onTrue(new DriveDistancePPID(0, -1, 0, .1, drivebase));
+    // driverXbox.povLeft().onTrue(new DriveDistancePPID(0, 1, 0, .1, drivebase));
 
     //driverXbox.a().onTrue((Commands.run(drivebase::sysIdDriveMotorCommand)));
     //driverXbox.b().onTrue((Commands.run(drivebase::sysIdAngleMotorCommand)));
     //driverXbox.x().whileTrue(new DriveToAprilTagPosCmdOld(drivebase));
     
-    driverXbox.x().whileTrue(new DriveToAprilTagPosCmd("Speaker",
-                                                       1.7,
-                                                       0.0,
-                                                       0.1,
-                                                       drivebase)); 
+    // driverXbox.x().whileTrue(new DriveToAprilTagPosCmd("Speaker",
+    //                                                    1.7,
+    //                                                    0.0,
+    //                                                    0.1,
+    //                                                    vision,
+    //                                                    drivebase)); 
+
+    driverXbox.x().whileTrue(new DriveToPoseCmd("Speaker",
+                                                1.7,
+                                                drivebase)); 
 
     driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase).andThen
                             (new DriveDistancePPID(-.5, 0, 0, .1, drivebase)));
 
-    // driverXbox.y().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
-    //               new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));
+    driverXbox.y().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
+                  new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));
 
     //driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
@@ -241,11 +255,12 @@ public class RobotContainer
       zController.setTolerance(.5);
 
       if (driverXbox.getHID().getRightStickButton() == false){  
-        yawToSpeakerValue = MathUtil.applyDeadband(-driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND);
+        yawToSpeakerValue = MathUtil.applyDeadband(driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND);
       } else{
-        if (AprilTagVisionSubsystem.camAprTgLow.getLatestResult().hasTargets() == true){
-          if (AprilTagVisionSubsystem.camAprTgLow.getLatestResult().getBestTarget().getFiducialId() == fiducialId){
-            yawToSpeakerValue = MathUtil.clamp(zController.calculate(AprilTagVisionSubsystem.camAprTgLow.getLatestResult().getBestTarget().getYaw(),0), -1.0 , 1.0);
+          
+          if (vision.getLatestResult(Cameras.APR_TG_LOW_CAM).hasTargets() == true){
+          if (vision.getLatestResult(Cameras.APR_TG_LOW_CAM).getBestTarget().getFiducialId() == fiducialId){
+            yawToSpeakerValue = MathUtil.clamp(-zController.calculate(vision.getLatestResult(Cameras.APR_TG_LOW_CAM).getBestTarget().getYaw(),0), -1.0 , 1.0);
           }
         }
       }
