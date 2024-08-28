@@ -403,5 +403,23 @@ public class Vision
     field2d.getObject("tracked targets").setPoses(poses);
   }
 
+  public static Pose2d getAprilTagPose(int aprilTag, Double xOffset)
+  {  
+      Optional<Pose3d> aprilTagPose3d =
+          AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo).getTagPose(aprilTag);
+      Pose2d aprilTagPose2d = aprilTagPose3d.get().toPose2d();
+
+      // Calculate new x and y positions based on xOffset and rotation of aprilTagPose2d
+      double newX = aprilTagPose2d.getTranslation().getX() + xOffset *
+          Math.cos(aprilTagPose2d.getRotation().getRadians());
+      double newY = aprilTagPose2d.getTranslation().getY() + xOffset *
+          Math.sin(aprilTagPose2d.getRotation().getRadians());
+      // Create the new pose
+      Pose2d aprilTagTargetPose2d = new Pose2d(newX, newY, aprilTagPose2d.getRotation());
+       // Return the new pose
+      return aprilTagTargetPose2d;
+  }
+
+
 
 }
