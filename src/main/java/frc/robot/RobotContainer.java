@@ -180,7 +180,7 @@ public class RobotContainer
     //                                                    drivebase)); 
     
     driverXbox.x().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
-                             Vision.getAprilTagPose(AprilTagConstants.speakerID, 1.7, 1.0, 30.0))));
+                             Vision.getAprilTagPose(AprilTagConstants.speakerID, 1.7, 0.0, 0.0))));
 
     driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase).andThen
                             (new DriveDistancePPID(-.5, 0, 0, .1, drivebase)));
