@@ -15,6 +15,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -744,6 +745,18 @@ public class SwerveSubsystem extends SubsystemBase
           SetSwervePIDF();
   }
 }
+
+  public Pose2d getOffsetPose(Double xOffset, Double yOffset, Double rotOffset)
+  {  
+    Pose2d startPose2d = swerveDrive.getPose();
+
+    Transform2d offsetPose2d = new Transform2d(new Translation2d(xOffset, yOffset),
+                                                      new Rotation2d(Math.toRadians(rotOffset)));
+
+    Pose2d goalPose2d = startPose2d.transformBy(offsetPose2d);
+
+    return goalPose2d;
+  }
 
   
 }
