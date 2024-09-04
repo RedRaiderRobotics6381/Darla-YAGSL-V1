@@ -130,7 +130,7 @@ public class RobotContainer
 
     drivebase.setDefaultCommand(
         // !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
-        !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : closedAbsoluteDriveAdv);
+        !RobotBase.isSimulation() ? closedAbsoluteDriveAdv : closedAbsoluteDriveAdv);
   }
 
   /**
@@ -170,8 +170,14 @@ public class RobotContainer
     // driverXbox.povRight().onTrue(new DriveDistancePPID(0, -1, 0, .1, drivebase));
     // driverXbox.povLeft().onTrue(new DriveDistancePPID(0, 1, 0, .1, drivebase));
 
-    //driverXbox.a().onTrue((Commands.run(drivebase::sysIdDriveMotorCommand)));
-    //driverXbox.b().onTrue((Commands.run(drivebase::sysIdAngleMotorCommand)));
+    //driverXbox.y().onTrue((Commands.run(drivebase::sysIdDriveMotorCommand)));
+    driverXbox.y().whileTrue(Commands.deferredProxy(() -> drivebase.sysIdAngleMotorCommand()));
+    
+
+    driverXbox.x().whileTrue(Commands.deferredProxy(() -> drivebase.sysIdDriveMotorCommand()));
+
+    // driverXbox.y().onTrue((Commands.run(drivebase::SwerveDriveTest)));
+    // driverXbox.b().onTrue((Commands.run(drivebase::sysIdAngleMotorCommand)));
     //driverXbox.x().whileTrue(new DriveToAprilTagPosCmdOld(drivebase));
     
     // driverXbox.x().whileTrue(new DriveToAprilTagPosCmd("Speaker",
@@ -181,14 +187,14 @@ public class RobotContainer
     //                                                    vision,
     //                                                    drivebase)); 
     
-    driverXbox.x().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
-                             Vision.getAprilTagPose(AprilTagConstants.speakerID, 1.7, 0.0, 0.0))));
+    // driverXbox.x().whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(
+    //                          Vision.getAprilTagPose(AprilTagConstants.speakerID, 1.7, 0.0, 0.0))));
 
     // driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase).andThen
     //                         (new DriveDistancePPID(-.5, 0, 0, .1, drivebase)));
 
-    driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase).andThen
-                            (drivebase.driveToPose(drivebase.getOffsetPose(0.5, 0.0, 0.0))));
+    // driverXbox.b().whileTrue(new DriveToNoteCmd(drivebase).andThen
+    //                         (drivebase.driveToPose(drivebase.getOffsetPose(0.5, 0.0, 0.0))));
 
     // driverXbox.a().whileTrue(Commands.deferredProxy(() ->
     //                         (drivebase.driveToPose(drivebase.getOffsetPose(1.0, 1.0, 30.0)))));

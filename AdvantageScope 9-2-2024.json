@@ -1,0 +1,202 @@
+{
+  "hubs": [
+    {
+      "x": -8,
+      "y": -8,
+      "width": 1552,
+      "height": 840,
+      "state": {
+        "sidebar": {
+          "width": 300,
+          "expanded": [
+            "/SmartDashboard",
+            "/SmartDashboard/Pigeon 2 (v6) [13]",
+            "/SmartDashboard/swerve",
+            "/SmartDashboard/swerve/desiredStates",
+            "/SmartDashboard/swerve/measuredStates",
+            "/SmartDashboard/swerve/wheelLocations",
+            "/SmartDashboard/Swerve Drive",
+            "/SmartDashboard/Swerve Drive/infos",
+            "/SmartDashboard/Swerve Drive/warnings",
+            "/SmartDashboard/Angle D",
+            "/SmartDashboard/Auto Chooser",
+            "/SmartDashboard/Auto Chooser/options",
+            "/NT/SmartDashboard/swerve",
+            "/NT/SmartDashboard/swerve/modules",
+            "/NT/Shuffleboard/.recording",
+            "/NT/FMSInfo",
+            "/NT/LiveWindow",
+            "/NT/LiveWindow/.status",
+            "/NT",
+            "/NT/SmartDashboard",
+            "/NT/SmartDashboard/navX-Sensor[1]",
+            "/NT/SmartDashboard/Swerve Drive",
+            "/NT/SmartDashboard/Field",
+            "/NT/SmartDashboard/Field/Robot",
+            "/NT/SmartDashboard/Field/tracked targets"
+          ]
+        },
+        "tabs": {
+          "selected": 4,
+          "tabs": [
+            {
+              "type": 0,
+              "path": "../docs/tabs/TABLE.md"
+            },
+            {
+              "type": 1,
+              "legendHeight": 0.3,
+              "legends": {
+                "left": {
+                  "lockedRange": null,
+                  "unitConversion": {
+                    "type": null,
+                    "factor": 1
+                  },
+                  "fields": [
+                    {
+                      "key": "position-angle-backleft-SwerveSubsystem",
+                      "color": "#af2437",
+                      "show": true
+                    },
+                    {
+                      "key": "velocity-angle-backleft-SwerveSubsystem",
+                      "color": "#2b66a2",
+                      "show": true
+                    },
+                    {
+                      "key": "voltage-angle-backleft-SwerveSubsystem",
+                      "color": "#e5b31b",
+                      "show": true
+                    }
+                  ]
+                },
+                "discrete": {
+                  "fields": []
+                },
+                "right": {
+                  "lockedRange": null,
+                  "unitConversion": {
+                    "type": null,
+                    "factor": 1
+                  },
+                  "fields": []
+                }
+              },
+              "title": "Line Graph"
+            },
+            {
+              "type": 10,
+              "uuid": "kvwlsa0sckia1jpk2e4unakphmyezms6",
+              "fields": [
+                null,
+                null,
+                null
+              ],
+              "listFields": [],
+              "options": {},
+              "configHidden": false,
+              "visualizer": null,
+              "title": "Mechanism"
+            },
+            {
+              "type": 9,
+              "uuid": "kuqz3ws8yz9m68eohbmx3fo2xl4o5hru",
+              "fields": [
+                {
+                  "key": "NT:/SmartDashboard/swerve/measuredStates",
+                  "sourceTypeIndex": 0,
+                  "sourceType": 5
+                },
+                {
+                  "key": "NT:/SmartDashboard/swerve/desiredStates",
+                  "sourceTypeIndex": 0,
+                  "sourceType": 5
+                },
+                {
+                  "key": "NT:/SmartDashboard/swerve/robotRotation",
+                  "sourceTypeIndex": 0,
+                  "sourceType": 2
+                }
+              ],
+              "listFields": [],
+              "options": {
+                "maxSpeed": 4.5,
+                "rotationUnits": "radians",
+                "arrangement": "0,1,2,3",
+                "sizeLeftRight": 0.65,
+                "sizeFrontBack": 0.65,
+                "forwardDirection": "up"
+              },
+              "configHidden": false,
+              "visualizer": null,
+              "title": "Swerve"
+            },
+            {
+              "type": 6,
+              "uuid": "zjmn43tnp2c5164l3friy6qt7h8vhniq",
+              "fields": [],
+              "listFields": [
+                [],
+                [
+                  {
+                    "type": "Robot",
+                    "key": "NT:/SmartDashboard/Field/Robot",
+                    "sourceTypeIndex": 0,
+                    "sourceType": 5
+                  }
+                ]
+              ],
+              "options": {
+                "field": "2024 Field",
+                "alliance": "blue",
+                "robot": "2024 KitBot",
+                "unitDistance": "meters",
+                "unitRotation": "radians"
+              },
+              "configHidden": false,
+              "visualizer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  1.4695761589768238e-15,
+                  5.999999999999999,
+                  -12
+                ],
+                "cameraTarget": [
+                  0,
+                  0.5,
+                  0
+                ]
+              },
+              "title": "3D Field"
+            },
+            {
+              "type": 8,
+              "uuid": "3dttqceqkl3rmfchfryw76jfqyc0gjic",
+              "fields": [],
+              "listFields": [],
+              "options": {
+                "ids": [
+                  0,
+                  1,
+                  2
+                ],
+                "layouts": [
+                  "None",
+                  "None",
+                  "None"
+                ]
+              },
+              "configHidden": false,
+              "visualizer": null,
+              "title": "Joysticks"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "3.2.1"
+}

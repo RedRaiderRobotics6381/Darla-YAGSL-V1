@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -96,8 +97,14 @@ public class SwerveSubsystem extends SubsystemBase
     {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
-    swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    if (RobotBase.isSimulation() == true) {
+      swerveDrive.setHeadingCorrection(false);
+      swerveDrive.setCosineCompensator(false);
+    }
+    else{
+      swerveDrive.setHeadingCorrection(true);
+      swerveDrive.setCosineCompensator(true);  
+    }
     setupPathPlanner();
     setupPhotonVision();
     GetSwervePIDF();
@@ -698,6 +705,7 @@ public class SwerveSubsystem extends SubsystemBase
       SmartDashboard.putNumber("Drive D: ", module.getDrivePIDF().d);
       SmartDashboard.putNumber("Drive F: ", module.getDrivePIDF().f);
       SmartDashboard.putNumber("Drive Iz: ", module.getDrivePIDF().iz);
+
 
       SmartDashboard.putNumber("Angle P: ", module.getAnglePIDF().p);
       SmartDashboard.putNumber("Angle I: ", module.getAnglePIDF().i);
