@@ -170,14 +170,11 @@ public class RobotContainer
     // driverXbox.povRight().onTrue(new DriveDistancePPID(0, -1, 0, .1, drivebase));
     // driverXbox.povLeft().onTrue(new DriveDistancePPID(0, 1, 0, .1, drivebase));
 
-    //driverXbox.y().onTrue((Commands.run(drivebase::sysIdDriveMotorCommand)));
     driverXbox.y().whileTrue(Commands.deferredProxy(() -> drivebase.sysIdAngleMotorCommand()));
-    
 
     driverXbox.x().whileTrue(Commands.deferredProxy(() -> drivebase.sysIdDriveMotorCommand()));
 
-    // driverXbox.y().onTrue((Commands.run(drivebase::SwerveDriveTest)));
-    // driverXbox.b().onTrue((Commands.run(drivebase::sysIdAngleMotorCommand)));
+
     //driverXbox.x().whileTrue(new DriveToAprilTagPosCmdOld(drivebase));
     
     // driverXbox.x().whileTrue(new DriveToAprilTagPosCmd("Speaker",

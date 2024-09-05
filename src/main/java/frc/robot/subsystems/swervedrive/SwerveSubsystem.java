@@ -107,7 +107,8 @@ public class SwerveSubsystem extends SubsystemBase
     }
     setupPathPlanner();
     setupPhotonVision();
-    GetSwervePIDF();
+    //GetSwervePIDF();
+    //swerveDrive.pushOffsetsToEncoders();  // STOP - this will override the offset values stored on the encoders with the offset values from the JSON files.
   }
 
   /**
@@ -428,7 +429,7 @@ public class SwerveSubsystem extends SubsystemBase
   {
     getVisionPose();
     updatePoseWithVision();
-    ChangeSwervePIDF();
+    // ChangeSwervePIDF();
     vision.updateVisionField();
   }
 

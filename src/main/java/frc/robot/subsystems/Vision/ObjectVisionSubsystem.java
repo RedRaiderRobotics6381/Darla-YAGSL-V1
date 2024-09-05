@@ -19,9 +19,6 @@ public class ObjectVisionSubsystem {
     }
 
     public void periodic() {
-        // camObj.getLatestResult();
-        // SmartDashboard.putBoolean("camObj Connected",camObj.isConnected()); // Check if the camera is connected
-        // SmartDashboard.putBoolean("camObj has Targets",camObj.getLatestResult().hasTargets()); // Check if the camera has targets
     }
 
     /**
