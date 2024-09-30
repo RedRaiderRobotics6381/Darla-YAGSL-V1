@@ -10,7 +10,7 @@
     "canbus": null
   },
   "encoder": {
-    "type": "integrated",
+    "type": "attached",
     "id": 0,
     "canbus": null
   },

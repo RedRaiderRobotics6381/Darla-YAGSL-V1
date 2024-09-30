@@ -4,20 +4,33 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.AprilTagConstants;
-import frc.robot.subsystems.VisionSubsystem;
+// import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
+import frc.robot.subsystems.Vision.ObjectVisionSubsystem;
+import frc.robot.subsystems.swervedrive.Vision;
+import frc.robot.subsystems.swervedrive.Vision.Cameras;
+// import frc.robot.subsystems.Vision.AprilTagVisionSubsystem;
+// import frc.robot.subsystems.swervedrive.Vision;
+// import frc.robot.subsystems.Vision.AprilTagVisionSubsystem.Cameras;
 import frc.robot.subsystems.LEDsSubSystem;
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Supplier;
+
+import org.photonvision.PhotonCamera;
+
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -28,9 +41,13 @@ public class Robot extends TimedRobot
 {
   private static Robot   instance;
   private Command m_autonomousCommand;
-  VisionSubsystem m_Vision;
+  ObjectVisionSubsystem m_ObjectVision;
+  Vision m_Vision;
+  // Field2d field2d;
+  Supplier<Pose2d> poseProvider;
 
-  // public static PhotonCamera camObj = new PhotonCamera("camObj"); // Create a new PhotonCamera object
+
+  public static PhotonCamera camObj = new PhotonCamera("camObj"); // Create a new PhotonCamera object
   // public static PhotonCamera camAprTgLow = new PhotonCamera("camAprTgLow"); // Create a new PhotonCamera object
   public static LEDsSubSystem m_LEDsSubSystem = new LEDsSubSystem(); // Create a new LEDsSubSystem object
   // public static LEDsSubsystem m_LEDsSubSystem = new LEDsSubsystem(); // Create a new LEDsSubSystem object
@@ -60,7 +77,9 @@ public class Robot extends TimedRobot
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    m_Vision = new VisionSubsystem(m_LEDsSubSystem);
+    m_ObjectVision = new ObjectVisionSubsystem(m_LEDsSubSystem);
+    //m_Vision = new Vision(poseProvider, field2d);
+    
 
 
     
@@ -70,6 +89,8 @@ public class Robot extends TimedRobot
     // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
     //LEDsSubSystem.rainbow();
+
+
     
   }
 
@@ -88,6 +109,16 @@ public class Robot extends TimedRobot
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    // AprilTagVisionSubsystem.camAprTgLowCamLatancyAlert.set(AprilTagVisionSubsystem.getLatestResult(Cameras.CAM_APR_TG_LOW).getLatencyMillis() > 100);
+    // AprilTagVisionSubsystem.updateVisionField();
+    //camObj.getLatestResult();
+    SmartDashboard.putBoolean("camObj Connected",camObj.isConnected()); // Check if the camera is connected
+    SmartDashboard.putBoolean("camObj has Targets",camObj.getLatestResult().hasTargets()); // Check if the camera has targets
+    SmartDashboard.putBoolean("camAprTgLow Connected", Cameras.APR_TG_LOW_CAM.camera.isConnected());
+    SmartDashboard.putBoolean("camAprTgLow has Targets",Cameras.APR_TG_LOW_CAM.camera.getLatestResult().hasTargets());
+
+
+    
   }
 
   /**
@@ -155,6 +186,8 @@ public class Robot extends TimedRobot
     m_robotContainer.setDriveMode();
     m_robotContainer.setMotorBrake(true);
     aprilTagAlliance();
+    
+    
   }
 
   /**
@@ -164,7 +197,7 @@ public class Robot extends TimedRobot
   public void teleopPeriodic()
   {
     m_robotContainer.spencerButtons();
-    m_Vision.watchForNote(); 
+    m_ObjectVision.watchForNote(); 
   }
 
   @Override
@@ -203,6 +236,8 @@ public class Robot extends TimedRobot
   @Override
   public void simulationPeriodic()
   {
+    // AprilTagVisionSubsystem.getVisionSim().update(swerveDrive.getPose());
+  // m_Vision.getVisionSim().update(swerveDrive.getPose());
   }
   
   /**

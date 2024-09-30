@@ -15,27 +15,34 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.DrivebaseConstants;
+
 import java.io.File;
 import java.util.function.DoubleSupplier;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.SwerveDriveTest;
 import swervelib.math.SwerveMath;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -45,6 +52,10 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase
 {
 
+  /**
+   * PhotonVision class to keep an accurate odometry.
+   */
+  private Vision vision;
   /**
    * Swerve drive object.
    */
@@ -64,14 +75,14 @@ public class SwerveSubsystem extends SubsystemBase
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
     //  In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
     //  The encoder resolution per motor revolution is 1 per motor revolution.
-    double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(360);
+    double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(12.8);
     // Motor conversion factor is (PI * WHEEL DIAMETER IN METERS) / (GEAR RATIO * ENCODER RESOLUTION).
     //  In this case the wheel diameter is 4 inches, which must be converted to meters to get meters/second.
     //  The gear ratio is 6.75 motor revolutions per wheel rotation.
     //  The encoder resolution per motor revolution is 1 per motor revolution.
     double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.75);
     System.out.println("\"conversionFactors\": {");
-    System.out.println("\t\"angle\": {\"factor\": " + angleConversionFactor + " },") ;
+    System.out.println("\t\"angle\": {\"factor\": " + angleConversionFactor + " },");
     System.out.println("\t\"drive\": {\"factor\": " + driveConversionFactor + " }");
     System.out.println("}");
 
@@ -86,10 +97,18 @@ public class SwerveSubsystem extends SubsystemBase
     {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-    swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
-    // swerveDrive.setMaximumSpeed(Units.feetToMeters(14.5));
+    if (RobotBase.isSimulation() == true) {
+      swerveDrive.setHeadingCorrection(false);
+      swerveDrive.setCosineCompensator(false);
+    }
+    else{
+      swerveDrive.setHeadingCorrection(true);
+      swerveDrive.setCosineCompensator(true);  
+    }
     setupPathPlanner();
+    setupPhotonVision();
+    //GetSwervePIDF();
+    //swerveDrive.pushOffsetsToEncoders();  // STOP - this will override the offset values stored on the encoders with the offset values from the JSON files.
   }
 
   /**
@@ -104,12 +123,40 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   /**
+   * Setup the photon vision class.
+   */
+  public void setupPhotonVision()
+  {
+    vision = new Vision(swerveDrive::getPose, swerveDrive.field);
+    vision.updatePoseEstimation(swerveDrive);
+  }
+
+  /**
+   * Update the pose estimation with vision data.
+   */
+  public void updatePoseWithVision()
+  {
+    vision.updatePoseEstimation(swerveDrive);
+  }
+
+  /**
+   * Get the pose while updating with vision readings.
+   *
+   * @return The robots pose with the vision estimates in place.
+   */
+  public Pose2d getVisionPose()
+  {
+    vision.updatePoseEstimation(swerveDrive);
+    return swerveDrive.getPose();
+  }
+
+  /**
    * Setup AutoBuilder for PathPlanner.
    */
   public void setupPathPlanner()
   {
     AutoBuilder.configureHolonomic(
-        this::getPose, // Robot pose supplier
+        this::getVisionPose, // Robot pose supplier
         this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
         this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
@@ -254,7 +301,7 @@ public class SwerveSubsystem extends SubsystemBase
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                translationY.getAsDouble()), 0.8);
+                                                                                 translationY.getAsDouble()), 0.8);
 
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
@@ -380,11 +427,16 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    getVisionPose();
+    updatePoseWithVision();
+    // ChangeSwervePIDF();
+    vision.updateVisionField();
   }
 
   @Override
   public void simulationPeriodic()
   {
+    vision.getVisionSim().update(swerveDrive.getPose());
   }
 
   /**
@@ -603,4 +655,117 @@ public class SwerveSubsystem extends SubsystemBase
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
   }
+  
+    public void GetSwervePIDF() {
+    // ShuffleboardTab tab = Shuffleboard.getTab("Swerve PIDF");
+    swervelib.SwerveModule[] modules = swerveDrive.getModules();
+    for (SwerveModule module : modules)
+    {
+      // Shuffleboard.getTab("Swerve PIDF").add("Drive P: ", module.getDrivePIDF().p);
+      // Shuffleboard.getTab("Swerve PIDF").add("Drive I: ", module.getDrivePIDF().i);
+      // Shuffleboard.getTab("Swerve PIDF").add("Drive D: ", module.getDrivePIDF().d);
+      // Shuffleboard.getTab("Swerve PIDF").add("Drive F: ", module.getDrivePIDF().f);
+      // Shuffleboard.getTab("Swerve PIDF").add("Drive Iz: ", module.getDrivePIDF().iz);
+      // Shuffleboard.getTab("Swerve PIDF").add("Angle P: ", module.getAnglePIDF().p);
+      // Shuffleboard.getTab("Swerve PIDF").add("Angle I: ", module.getAnglePIDF().i);
+      // Shuffleboard.getTab("Swerve PIDF").add("Angle D: ", module.getAnglePIDF().d);
+      // Shuffleboard.getTab("Swerve PIDF").add("Angle F: ", module.getAnglePIDF().f);
+      // Shuffleboard.getTab("Swerve PIDF").add("Angle Iz: ", module.getAnglePIDF().iz);
+
+      SmartDashboard.putNumber("Drive P: ", module.getDrivePIDF().p);
+      SmartDashboard.putNumber("Drive I: ", module.getDrivePIDF().i);
+      SmartDashboard.putNumber("Drive D: ", module.getDrivePIDF().d);
+      SmartDashboard.putNumber("Drive F: ", module.getDrivePIDF().f);
+      SmartDashboard.putNumber("Angle P: ", module.getAnglePIDF().p);
+      SmartDashboard.putNumber("Angle I: ", module.getAnglePIDF().i);
+      SmartDashboard.putNumber("Angle D: ", module.getAnglePIDF().d);
+      SmartDashboard.putNumber("Angle F: ", module.getAnglePIDF().f);
+    }
+  }
+  public void SetSwervePIDF() {
+    swervelib.SwerveModule[] modules = swerveDrive.getModules();
+    for (SwerveModule module : modules)
+    {
+      PIDFConfig drivePIDFConfig = new PIDFConfig(DrivebaseConstants.DrivekP,
+                                                  DrivebaseConstants.DrivekI,
+                                                  DrivebaseConstants.DrivekD,
+                                                  DrivebaseConstants.DrivekF,
+                                                  DrivebaseConstants.DrivekIz);
+      
+      PIDFConfig anglePIDFConfig = new PIDFConfig(DrivebaseConstants.AnglekP,
+                                                  DrivebaseConstants.AnglekI,
+                                                  DrivebaseConstants.AnglekD,
+                                                  DrivebaseConstants.AnglekF,
+                                                  DrivebaseConstants.AnglekIz);
+
+      module.setDrivePIDF(drivePIDFConfig);
+      module.setAnglePIDF(anglePIDFConfig);
+
+      SmartDashboard.putNumber("Drive P: ", module.getDrivePIDF().p);
+      SmartDashboard.putNumber("Drive I: ", module.getDrivePIDF().i);
+      SmartDashboard.putNumber("Drive D: ", module.getDrivePIDF().d);
+      SmartDashboard.putNumber("Drive F: ", module.getDrivePIDF().f);
+      SmartDashboard.putNumber("Drive Iz: ", module.getDrivePIDF().iz);
+
+
+      SmartDashboard.putNumber("Angle P: ", module.getAnglePIDF().p);
+      SmartDashboard.putNumber("Angle I: ", module.getAnglePIDF().i);
+      SmartDashboard.putNumber("Angle D: ", module.getAnglePIDF().d);
+      SmartDashboard.putNumber("Angle F: ", module.getAnglePIDF().f);
+      SmartDashboard.putNumber("Angle Iz: ", module.getAnglePIDF().iz);
+    }
+  }
+  public void ChangeSwervePIDF() {
+        // read PID coefficients from SmartDashboard
+        double DriveP = SmartDashboard.getNumber("Drive P: ", 0);
+        double DriveI = SmartDashboard.getNumber("Drive I: ", 0);
+        double DriveD = SmartDashboard.getNumber("Drive D: ", 0);
+        double DriveF = SmartDashboard.getNumber("Drive F: ", 0);
+        double DriveIz = SmartDashboard.getNumber("Drive Iz: ", 0);
+        
+        double AngleP = SmartDashboard.getNumber("Angle P: ", 0);
+        double AngleI = SmartDashboard.getNumber("Angle I: ", 0);
+        double AngleD = SmartDashboard.getNumber("Angle D: ", 0);
+        double AngleF = SmartDashboard.getNumber("Angle F: ", 0);
+        double AngleIz = SmartDashboard.getNumber("Angle Iz: ", 0);
+
+        if(DriveP != DrivebaseConstants.DrivekP ||
+           DriveI != DrivebaseConstants.DrivekI ||
+           DriveD != DrivebaseConstants.DrivekD ||
+           DriveF != DrivebaseConstants.DrivekF ||
+           DriveIz != DrivebaseConstants.DrivekIz) {
+                                                    DrivebaseConstants.DrivekP = DriveP;
+                                                    DrivebaseConstants.DrivekI = DriveI;
+                                                    DrivebaseConstants.DrivekD = DriveD;
+                                                    DrivebaseConstants.DrivekF = DriveF;
+                                                    DrivebaseConstants.DrivekIz = DriveIz;
+        }
+
+        if(AngleP != DrivebaseConstants.AnglekP ||
+           AngleI != DrivebaseConstants.AnglekI ||
+           AngleD != DrivebaseConstants.AnglekD ||
+           AngleF != DrivebaseConstants.AnglekF ||
+           AngleIz != DrivebaseConstants.AnglekIz) {
+                                                    DrivebaseConstants.AnglekP = AngleP;
+                                                    DrivebaseConstants.AnglekI = AngleI;
+                                                    DrivebaseConstants.AnglekD = AngleD;
+                                                    DrivebaseConstants.AnglekF = AngleF;
+                                                    DrivebaseConstants.AnglekIz = AngleIz;
+          SetSwervePIDF();
+  }
+}
+
+  public Pose2d getOffsetPose(Double xOffset, Double yOffset, Double rotOffset)
+  {  
+    Pose2d startPose2d = swerveDrive.getPose();
+
+    Transform2d offsetPose2d = new Transform2d(new Translation2d(xOffset, yOffset),
+                                                      new Rotation2d(Math.toRadians(rotOffset)));
+
+    Pose2d goalPose2d = startPose2d.transformBy(offsetPose2d);
+
+    return goalPose2d;
+  }
+
+  
 }

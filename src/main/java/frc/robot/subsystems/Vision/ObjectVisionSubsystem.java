@@ -1,31 +1,24 @@
-package frc.robot.subsystems;
-
+package frc.robot.subsystems.Vision;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.LEDsSubSystem;
 import org.photonvision.PhotonCamera;
 
-public class VisionSubsystem {
+public class ObjectVisionSubsystem {
     
-    public static PhotonCamera camObj = new PhotonCamera("camObj"); // Create a new PhotonCamera object
-    public static PhotonCamera camAprTgLow = new PhotonCamera("camAprTgLow"); // Create a new PhotonCamera object
-
+    public static PhotonCamera camObj;
+    
     private LEDsSubSystem m_LEDsSubSystem;
 
-    public VisionSubsystem(LEDsSubSystem ledsSubsystem) {
+    public ObjectVisionSubsystem(LEDsSubSystem ledsSubsystem) {
         m_LEDsSubSystem = ledsSubsystem;
+        camObj = new PhotonCamera("camObj"); // Create a new PhotonCamera object
         camObj.setDriverMode(false); // Set the camera to driver mode
-        camAprTgLow.setDriverMode(false); // Set the camera to driver mode
     }
 
     public void periodic() {
-        camObj.getLatestResult();
-        camAprTgLow.getLatestResult();
-        SmartDashboard.putBoolean("camObj Connected",camObj.isConnected()); // Check if the camera is connected
-        SmartDashboard.putBoolean("camAprTgLow Connected",camAprTgLow.isConnected()); // Check if the camera is connected
-        SmartDashboard.putBoolean("camObj has Targets",camObj.getLatestResult().hasTargets()); // Check if the camera has targets
-        SmartDashboard.putBoolean("camAprTgLow has Targets",camAprTgLow.getLatestResult().hasTargets()); // Check if the camera has targets
     }
 
     /**

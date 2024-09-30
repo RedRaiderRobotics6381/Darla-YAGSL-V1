@@ -5,7 +5,16 @@
 package frc.robot;
 
 import com.pathplanner.lib.util.PIDConstants;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
 
@@ -39,6 +48,18 @@ public final class Constants
     // Hold time on motor brakes when disabled
     public static final double WHEEL_LOCK_TIME = 10; // seconds
     public static double Max_Speed_Multiplier = 0.5;
+    
+    public static double DrivekP = 0.00023;
+    public static double DrivekI = 0.0000002;
+    public static double DrivekD = 1.0;
+    public static double DrivekF = 0.0;
+    public static double DrivekIz = 0.0;
+
+    public static double AnglekP = 0.045;
+    public static double AnglekI = 0.0;
+    public static double AnglekD = 1.5;
+    public static double AnglekF = 0.000005;
+    public static double AnglekIz = 0.0;
   }
 
   public static class OperatorConstants
@@ -48,6 +69,7 @@ public final class Constants
     public static final double LEFT_X_DEADBAND  = 0.1;
     public static final double LEFT_Y_DEADBAND  = 0.1;
     public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final double RIGHT_Y_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
 
@@ -58,6 +80,20 @@ public final class Constants
     public static int stageIDA = 0;
     public static int stageIDB = 0;
     public static int stageIDC = 0; 
+  }
+
+  public static class VisionConstants {
+    // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    public static final Transform3d kRobotToCam =
+            new Transform3d(new Translation3d(0.051, 0.0, 0.536), new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0)));
+    // The layout of the AprilTags on the field
+    public static final AprilTagFieldLayout kTagLayout =
+            AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+
+    // The standard deviations of our vision estimated poses, which affect correction rate
+    // (Fake values. Experiment and determine estimation noise on an actual robot.)
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
   }
 
     

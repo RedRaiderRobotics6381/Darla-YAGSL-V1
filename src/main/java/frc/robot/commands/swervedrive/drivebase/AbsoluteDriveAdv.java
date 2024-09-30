@@ -26,7 +26,7 @@ public class AbsoluteDriveAdv extends Command
   private final SwerveSubsystem swerve;
   private final DoubleSupplier  vX, vY;
   private final DoubleSupplier  headingAdjust;
-  private final BooleanSupplier lookAway, lookTowards, lookLeft, lookRight;
+  private final BooleanSupplier lookAway, lookTowards, lookLeft, lookRight, lookTarget;
   private       boolean         resetHeading = false;
 
   /**
@@ -51,7 +51,7 @@ public class AbsoluteDriveAdv extends Command
    */
   public AbsoluteDriveAdv(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier headingAdjust,
                           BooleanSupplier lookAway, BooleanSupplier lookTowards, BooleanSupplier lookLeft,
-                          BooleanSupplier lookRight)
+                          BooleanSupplier lookRight, BooleanSupplier lookTarget)
   {
     this.swerve = swerve;
     this.vX = vX;
@@ -61,6 +61,7 @@ public class AbsoluteDriveAdv extends Command
     this.lookTowards = lookTowards;
     this.lookLeft = lookLeft;
     this.lookRight = lookRight;
+    this.lookTarget = lookTarget;
 
     addRequirements(swerve);
   }
@@ -98,6 +99,12 @@ public class AbsoluteDriveAdv extends Command
     if (lookTowards.getAsBoolean())
     {
       headingY = 1;
+    }
+    // Face Towards the speaker
+    if (lookTarget.getAsBoolean())
+    {
+      headingX = swerve.getSpeakerYaw().getSin();
+      headingY = swerve.getSpeakerYaw().getCos();
     }
 
     // Prevent Movement After Auto
